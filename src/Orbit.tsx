@@ -3,6 +3,12 @@ import { useEffect, useRef, useState } from "react";
 export default function Orbit() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const syncRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    pausedRef.current = paused;
+    syncRef.current?.();
+  }, [paused]);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -57,9 +63,10 @@ export default function Orbit() {
       cancelAnimationFrame(frame);
       lastTime = 0;
       draw();
-      if (!paused && !motion.matches && !document.hidden && inView)
+      if (!pausedRef.current && !motion.matches && !document.hidden && inView)
         frame = requestAnimationFrame(tick);
     }
+    syncRef.current = sync;
     const resize = new ResizeObserver(([entry]) => {
       width = entry.contentRect.width;
       height = entry.contentRect.height;
@@ -90,6 +97,7 @@ export default function Orbit() {
     document.addEventListener("visibilitychange", sync);
     motion.addEventListener("change", sync);
     return () => {
+      syncRef.current = null;
       cancelAnimationFrame(frame);
       resize.disconnect();
       intersection.disconnect();
@@ -98,7 +106,7 @@ export default function Orbit() {
       document.removeEventListener("visibilitychange", sync);
       motion.removeEventListener("change", sync);
     };
-  }, [paused]);
+  }, []);
   return (
     <div className="orbit">
       <canvas ref={canvasRef} aria-hidden="true" />

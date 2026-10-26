@@ -9,11 +9,18 @@ Use Node.js 24 and npm. On PowerShell installations that block npm.ps1, use npm.
 ```sh
 npm ci
 npm run dev
+```
+
+Keep the terminal running and open http://127.0.0.1:5173/portfolio/. Run these commands from the checkout that contains `package.json`. On Windows, replace `npm` with `npm.cmd` if PowerShell blocks `npm.ps1`.
+
+To check the app and preview the production build:
+
+```sh
 npm run check
 npm run preview
 ```
 
-The app runs under `/portfolio/`, including during local preview. `npm run check` runs ESLint, TypeScript, and the production build.
+Open http://127.0.0.1:4173/portfolio/ for the production preview. The app runs under `/portfolio/` in both modes. `npm run check` runs ESLint, TypeScript, and the production build.
 
 ## Publish a project
 
