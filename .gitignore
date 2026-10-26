@@ -6,3 +6,7 @@ node_modules/
 !.env.example
 .impeccable/cache/
 *.log
+
+dist/
+.impeccable/review/
+*.tsbuildinfo
