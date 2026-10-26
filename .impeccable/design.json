@@ -1,5 +1,255 @@
 {
-  "breakpoints": {"tablet": "800px", "mobile": "560px"},
-  "motion": {"introDuration": "1.2s", "introEasing": "cubic-bezier(.16,1,.3,1)", "reducedMotion": "Disable decorative animation and smooth scrolling"},
-  "narrative": {"northStar": "A personal first page", "rules": ["Verified profile facts", "Open project rows", "One decorative animation"]}
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T16:09:56.191Z",
+  "title": "Design System: Atajan portfolio",
+  "extensions": {
+    "colorMeta": {
+      "orange": {
+        "role": "primary",
+        "displayName": "Persimmon orange",
+        "tonalRamp": [
+          "oklch(15% 0.18 36)",
+          "oklch(26% 0.18 36)",
+          "oklch(38% 0.18 36)",
+          "oklch(49% 0.18 36)",
+          "oklch(61% 0.18 36)",
+          "oklch(72% 0.18 36)",
+          "oklch(84% 0.18 36)",
+          "oklch(95% 0.18 36)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Almost-black ink",
+        "tonalRamp": [
+          "oklch(15% 0.008 130)",
+          "oklch(26% 0.008 130)",
+          "oklch(38% 0.008 130)",
+          "oklch(49% 0.008 130)",
+          "oklch(61% 0.008 130)",
+          "oklch(72% 0.008 130)",
+          "oklch(84% 0.008 130)",
+          "oklch(95% 0.008 130)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool paper",
+        "tonalRamp": [
+          "oklch(15% 0.006 110)",
+          "oklch(26% 0.006 110)",
+          "oklch(38% 0.006 110)",
+          "oklch(49% 0.006 110)",
+          "oklch(61% 0.006 110)",
+          "oklch(72% 0.006 110)",
+          "oklch(84% 0.006 110)",
+          "oklch(95% 0.006 110)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted gray-green",
+        "tonalRamp": [
+          "oklch(15% 0.014 120)",
+          "oklch(26% 0.014 120)",
+          "oklch(38% 0.014 120)",
+          "oklch(49% 0.014 120)",
+          "oklch(61% 0.014 120)",
+          "oklch(72% 0.014 120)",
+          "oklch(84% 0.014 120)",
+          "oklch(95% 0.014 120)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine-rule gray",
+        "tonalRamp": [
+          "oklch(15% 0.009 115)",
+          "oklch(26% 0.009 115)",
+          "oklch(38% 0.009 115)",
+          "oklch(49% 0.009 115)",
+          "oklch(61% 0.009 115)",
+          "oklch(72% 0.009 115)",
+          "oklch(84% 0.009 115)",
+          "oklch(95% 0.009 115)"
+        ]
+      },
+      "artwork": {
+        "role": "neutral",
+        "displayName": "Artwork gray-green",
+        "tonalRamp": [
+          "oklch(15% 0.014 120)",
+          "oklch(26% 0.014 120)",
+          "oklch(38% 0.014 120)",
+          "oklch(49% 0.014 120)",
+          "oklch(61% 0.014 120)",
+          "oklch(72% 0.014 120)",
+          "oklch(84% 0.014 120)",
+          "oklch(95% 0.014 120)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Name",
+        "purpose": "Owner name in the introduction."
+      },
+      "headline": {
+        "displayName": "Section heading",
+        "purpose": "Archive and about headings."
+      },
+      "title": {
+        "displayName": "Project title",
+        "purpose": "Published work titles."
+      },
+      "body": {
+        "displayName": "Description",
+        "purpose": "Project and about paragraphs."
+      },
+      "label": {
+        "displayName": "Metadata",
+        "purpose": "Category and year."
+      }
+    },
+    "shadows": [
+      {
+        "name": "preview-paper",
+        "value": "0 25px 35px -22px #191b1850",
+        "purpose": "Only the tilted portfolio preview."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Transform transitions."
+      },
+      {
+        "name": "action-lift",
+        "value": ".35s",
+        "purpose": "Primary and text-link transforms."
+      },
+      {
+        "name": "preview-straighten",
+        "value": ".65s",
+        "purpose": "Miniature preview transform."
+      },
+      {
+        "name": "contact-turn",
+        "value": ".5s",
+        "purpose": "Circular email action transform."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Still canvas, no transitions and automatic scrolling."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1600px"
+      },
+      {
+        "name": "tablet",
+        "value": "1000px"
+      },
+      {
+        "name": "phone",
+        "value": "680px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary project link",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled link to the archive.",
+      "html": "<a class=\"ds-primary\" href=\"#work\">View projects <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
+      "css": ".ds-primary{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:35px;padding:17px 21px;background:var(--ink,#191b18);color:var(--paper,#efefeb);border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.16,1,.3,1)}.ds-primary:hover{background:#363a31;transform:translateY(-3px)}.ds-primary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-primary:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Text link",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Source and profile links in open rows.",
+      "html": "<a class=\"ds-text\" href=\"#work\">Code on GitHub <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
+      "css": ".ds-text{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:18px;font-size:12px;font-weight:650;min-height:44px;color:var(--ink,#191b18);text-decoration:none;text-underline-offset:5px}.ds-text:hover{text-decoration:underline}.ds-text svg{transition:transform .35s cubic-bezier(.16,1,.3,1)}.ds-text:hover svg{transform:translate(2px,-2px)}.ds-text svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-text:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-text svg{transition:none}}"
+    },
+    {
+      "name": "Masthead navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Anchor links with a content-derived project count.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"#work\">Projects <span>01</span></a><a href=\"#about\">About</a><a href=\"#contact\">Contact <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a></nav>",
+      "css": ".ds-nav{font-family:Manrope,sans-serif;display:flex;gap:38px;align-items:center;font-size:14px;font-weight:600;color:var(--ink,#191b18)}.ds-nav a{display:flex;gap:9px;align-items:center;min-height:44px;color:inherit;text-decoration:none;text-underline-offset:5px}.ds-nav span{font-size:10px;align-self:flex-start;padding-top:9px}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}.ds-nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}@media(max-width:680px){.ds-nav{gap:20px;font-size:11px}.ds-nav a:nth-child(2){display:none}}"
+    },
+    {
+      "name": "Technology tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Noninteractive technology label.",
+      "html": "<span class=\"ds-tag\">React</span>",
+      "css": ".ds-tag{font-family:Manrope,sans-serif;display:inline-block;font-size:10px;color:var(--ink,#191b18);border:1px solid #aeb1a5;border-radius:4px;padding:6px 10px}"
+    },
+    {
+      "name": "Project artwork",
+      "kind": "card",
+      "refersTo": "project-art",
+      "description": "Generic linked artwork for a record without a portfolio preview.",
+      "html": "<a class=\"ds-art\" href=\"#work\"><span class=\"ds-title\">Project title</span><span class=\"ds-stack\">React / TypeScript</span><span class=\"ds-label\">View source code <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></span></a>",
+      "css": ".ds-art{font-family:Manrope,sans-serif;display:flex;flex-direction:column;justify-content:space-between;gap:30px;min-height:350px;padding:48px 42px 30px;background:var(--artwork,#daddd4);color:var(--ink,#191b18);text-decoration:none;overflow:hidden}.ds-title{font-size:32px;letter-spacing:-.03em}.ds-stack{font-size:12px}.ds-label{display:flex;align-items:center;justify-content:space-between;font-size:10px}.ds-art svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-art:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}"
+    },
+    {
+      "name": "Circular email action",
+      "kind": "button",
+      "refersTo": "contact-action",
+      "description": "Direct email link in contact.",
+      "html": "<a class=\"ds-contact\" href=\"mailto:admin@atajan.org\" aria-label=\"Send email\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
+      "css": ".ds-contact{display:flex;align-items:center;justify-content:center;width:100px;height:100px;border-radius:50%;background:var(--orange,#f1653c);color:var(--ink,#191b18);transition:transform .5s cubic-bezier(.16,1,.3,1)}.ds-contact svg{width:45px;height:45px;fill:none;stroke:currentColor;stroke-width:1}.ds-contact:hover{transform:rotate(45deg)}.ds-contact:focus-visible{outline:3px solid var(--orange,#f1653c);outline-offset:6px}@media(max-width:680px){.ds-contact{width:52px;height:52px}.ds-contact svg{width:27px;height:27px}}@media(prefers-reduced-motion:reduce),(hover:none){.ds-contact{transition:none}.ds-contact:hover{transform:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A personal digital sketchbook in motion",
+    "overview": "A personal digital sketchbook in motion pairs an oversized name with a rotating line sculpture. Persimmon orange fills the introduction, cool paper holds the archive and about text, and ink closes the page with contact details.\n\nSelf-hosted Manrope carries every typographic role. Open columns, fine rules and drawn arrows keep the layout editorial. The miniature site preview supplies the only floating paper effect.",
+    "keyCharacteristics": [
+      "Solid orange, paper and ink fields.",
+      "Oversized Manrope display type with tight tracking.",
+      "Open project rows and fine rules.",
+      "A pausable, pointer-responsive line sculpture."
+    ],
+    "rules": [
+      {
+        "name": "The field rule",
+        "body": "Use orange for the introduction and focused contact accents, paper for reading sections, and ink for contact.",
+        "section": "colors"
+      },
+      {
+        "name": "The shared type rule",
+        "body": "Keep Manrope across display, body and controls. Separate hierarchy through scale, weight and spacing.",
+        "section": "typography"
+      },
+      {
+        "name": "The open row rule",
+        "body": "Keep project information beside its artwork on wide screens and below it on phones. Separate entries with fine rules.",
+        "section": "layout"
+      },
+      {
+        "name": "The optional motion rule",
+        "body": "Keep the sculpture decorative and pausable. Render a still composition when reduced motion is requested.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do keep source links, technology tags and project descriptions outside preview artwork.",
+      "Do retain keyboard focus, the skip link and the sculpture pause control.",
+      "Do stack project and about columns at the phone breakpoint."
+    ],
+    "donts": [
+      "Don't make decorative canvas content a requirement for reading or navigation.",
+      "Don't hide contact actions inside artwork.",
+      "Don't add continuous motion without preserving reduced-motion and visibility handling."
+    ]
+  }
 }
