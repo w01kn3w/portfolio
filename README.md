@@ -34,7 +34,7 @@ The supplied `annlegion` GitHub profile returned 404 during the audit. The exist
 
 ## Contact
 
-On GitHub Pages the form creates a draft in the visitor's email app. The visitor reviews and sends it there. No API request or automatic delivery is claimed. Confirm that the configured mailbox receives mail.
+The owner confirmed that admin@atajan.org has not been created yet. The Pages build uses `VITE_CONTACT_MODE=unavailable`, hiding the mailbox and form and showing a contact setup notice. When a working mailbox is confirmed, `email` mode can create drafts in the visitor's email app. No automatic delivery is claimed.
 
 The optional API mode requires `server/index.ts` and configured SMTP. Copy `.env.example` to an ignored `.env` and configure the provider privately. Without mail configuration the API returns HTTP 503, and the UI reports that delivery is unavailable. No enquiry is stored. SMTP acceptance is not a guarantee of inbox delivery.
 
