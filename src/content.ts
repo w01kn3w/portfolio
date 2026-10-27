@@ -1,11 +1,14 @@
 export const profile = {
   name: "Atajan",
-  email: "admin@atajan.org",
+  email: "wolkannaberdiyew@gmail.com",
+  instagram: "https://www.instagram.com/annaberdi_yev/",
+  instagramHandle: "annaberdi_yev",
+  phone: "+8613521004012",
   github: "https://github.com/annlegion",
   source: "https://github.com/w01kn3w/portfolio",
 };
 
-// Owner-configured address from the original repository. Delivery is unverified.
+// Contact details explicitly supplied by the owner.
 export const technologies = [
   {
     category: "Frontend",

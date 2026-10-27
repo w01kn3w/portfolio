@@ -135,6 +135,18 @@ function Contact() {
           <a className="email" href={`mailto:${profile.email}`}>
             {profile.email}
           </a>
+          <div className="contact-socials">
+            <a
+              className="text-link"
+              href={profile.instagram}
+              data-cursor="OPEN"
+            >
+              Instagram · @{profile.instagramHandle} <Arrow diagonal />
+            </a>
+            <a className="text-link" href={`tel:${profile.phone}`}>
+              Phone · {profile.phone} <Arrow diagonal />
+            </a>
+          </div>
           <button
             className="text-button"
             type="button"

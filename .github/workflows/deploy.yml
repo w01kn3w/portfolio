@@ -25,9 +25,9 @@ jobs:
       - run: npm run check
         env:
           VITE_BASE_PATH: /
-          VITE_CONTACT_MODE: unavailable
+          VITE_CONTACT_MODE: email
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser -- --no-contact
+      - run: npm run test:browser -- --email
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

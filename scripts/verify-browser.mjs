@@ -82,6 +82,22 @@ try {
     assert.equal(await page.locator(".contact-form").count(), 0);
     results.push("Unavailable contact hides the uncreated mailbox and form");
   } else {
+    assert.equal(
+      await page
+        .getByRole("link", { name: /Instagram · @annaberdi_yev/ })
+        .getAttribute("href"),
+      "https://www.instagram.com/annaberdi_yev/",
+    );
+    assert.equal(
+      await page.getByRole("link", { name: /Phone ·/ }).getAttribute("href"),
+      "tel:+8613521004012",
+    );
+    assert.equal(
+      await page
+        .getByRole("link", { name: "wolkannaberdiyew@gmail.com", exact: true })
+        .getAttribute("href"),
+      "mailto:wolkannaberdiyew@gmail.com",
+    );
     await page
       .getByLabel("Your name", { exact: true })
       .fill("Browser verification");
