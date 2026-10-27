@@ -24,7 +24,7 @@ For frontend development run `npm run dev`. To test mail through the development
 - `npm run build`: root-domain production bundle and custom `404.html`.
 - `npm run test:browser`: real Chromium integration checks against a temporary local production server. Run `npx playwright install chromium` first on Linux/macOS. On Windows the script uses installed Chrome. Tests cover responsive overflow, project expansion, architecture, keyboard controls, contact failures, cursor, reduced motion, touch, 404, assets and axe WCAG A/AA rules.
 
-CI runs all of these on pull requests and main pushes. Browser checks need a root-base build. Set `VITE_BASE_PATH=/portfolio/` only for the separate Pages build.
+CI runs all of these on pull requests and main pushes. The custom-domain Pages build uses `VITE_BASE_PATH=/` and `VITE_CONTACT_MODE=email`.
 
 ## Content and evidence
 
@@ -34,11 +34,13 @@ The supplied `annlegion` GitHub profile returned 404 during the audit. The exist
 
 ## Contact
 
-The static UI works without a server. Sending requires `server/index.ts` and configured SMTP. Copy `.env.example` to an ignored `.env` and configure the provider privately. Without mail configuration the API returns HTTP 503, and the UI reports that delivery is unavailable. No enquiry is stored. SMTP acceptance is not a guarantee of inbox delivery.
+On GitHub Pages the form creates a draft in the visitor's email app. The visitor reviews and sends it there. No API request or automatic delivery is claimed. Confirm that the configured mailbox receives mail.
+
+The optional API mode requires `server/index.ts` and configured SMTP. Copy `.env.example` to an ignored `.env` and configure the provider privately. Without mail configuration the API returns HTTP 503, and the UI reports that delivery is unavailable. No enquiry is stored. SMTP acceptance is not a guarantee of inbox delivery.
 
 ## Publish and rollback
 
-See [deployment instructions](docs/deployment.md) for GitHub Pages, a dedicated VPS workflow, required secrets, origin settings, HTTPS prerequisites and rollback. Pages publishes only the static bundle on main; it cannot send mail. The optional VPS workflow stays disabled until the existing server is audited and configured. No DNS or running service is changed by this repository.
+The selected hosting is GitHub Pages at atajan.org. See [domain setup](docs/github-pages.md) for the owner DNS steps. Main pushes publish the static bundle automatically. Pages cannot run a Node server. The alternative VPS workflow stays disabled. See [deployment instructions](docs/deployment.md) for that optional future path and rollback.
 
 For a code rollback, revert the release commit on main and push after review. The VPS release script retains previous release directories and automatically restores the previous `current` symlink if activation fails; manual rollback commands are documented in the deployment guide.
 

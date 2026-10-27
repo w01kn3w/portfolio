@@ -5,6 +5,7 @@ import Cursor from "./Cursor";
 import { profile, technologies } from "./content";
 
 const Architecture = lazy(() => import("./Architecture"));
+const emailDraftMode = import.meta.env.VITE_CONTACT_MODE === "email";
 class ContactError extends Error {}
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -25,6 +26,20 @@ function Contact() {
     event.preventDefault();
     const form = event.currentTarget;
     const fields = Object.fromEntries(new FormData(form));
+    if (emailDraftMode) {
+      if (fields.website) return;
+      const subject = encodeURIComponent(
+        `Project enquiry from ${String(fields.name).trim()}`,
+      );
+      const body = encodeURIComponent(
+        `Name: ${String(fields.name).trim()}\nReply to: ${String(fields.email).trim()}\n\n${String(fields.message).trim()}`,
+      );
+      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+      setFeedback(
+        "Complete sending in your email app. If no draft appears, use the email link.",
+      );
+      return;
+    }
     setState("sending");
     setFeedback("");
     try {
@@ -114,8 +129,9 @@ function Contact() {
             {copy}
           </span>
           <p className="contact-note">
-            Email address provided in this repository. Message delivery requires
-            server configuration.
+            {emailDraftMode
+              ? "The form creates a draft in your email app. Review and send it there."
+              : "Email address provided in this repository. Message delivery requires server configuration."}
           </p>
         </div>
         <form onSubmit={submit} className="contact-form">
@@ -161,13 +177,21 @@ function Contact() {
             </label>
           </div>
           <div className="form-end">
-            <span>Only used to reply to your enquiry.</span>
+            <span>
+              {emailDraftMode
+                ? "Opens your email app. Nothing is sent automatically."
+                : "Only used to reply to your enquiry."}
+            </span>
             <button
               className="button primary"
               disabled={state === "sending"}
               type="submit"
             >
-              {state === "sending" ? "Sending…" : "Send enquiry"}
+              {emailDraftMode
+                ? "Create email draft"
+                : state === "sending"
+                  ? "Sending…"
+                  : "Send enquiry"}
               <Arrow diagonal />
             </button>
           </div>
