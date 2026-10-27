@@ -76,61 +76,68 @@ try {
   results.push(
     "Case study, architecture, keyboard process navigation and technology explorer",
   );
-  await page
-    .getByLabel("Your name", { exact: true })
-    .fill("Browser verification");
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("test@example.com");
-  await page
-    .getByLabel("What are you working on?")
-    .fill("Checking the real unavailable SMTP state in a local test.");
-  if (process.argv.includes("--email")) {
-    const apiRequests = [];
-    page.on("request", (request) => {
-      if (request.url().endsWith("/api/contact"))
-        apiRequests.push(request.url());
-    });
-    await page.getByRole("button", { name: "Create email draft" }).click();
-    await page
-      .getByText(
-        "Complete sending in your email app. If no draft appears, use the email link.",
-      )
-      .waitFor();
-    assert.deepEqual(apiRequests, []);
-    assert.equal(
-      await page.getByText("Message sent.", { exact: false }).count(),
-      0,
-    );
-    results.push(
-      "Static contact creates an email draft without API calls or false delivery confirmation",
-    );
+  if (process.argv.includes("--no-contact")) {
+    await page.getByText("Contact details are being set up.").waitFor();
+    assert.equal(await page.locator('a[href^="mailto:"]').count(), 0);
+    assert.equal(await page.locator(".contact-form").count(), 0);
+    results.push("Unavailable contact hides the uncreated mailbox and form");
   } else {
-    const submission = page.waitForResponse((response) =>
-      response.url().endsWith("/api/contact"),
-    );
-    await page.getByRole("button", { name: "Send enquiry" }).click();
-    assert.equal((await submission).status(), 503);
     await page
-      .getByText(
-        "Message delivery is not available right now. Please use the email link.",
-      )
-      .waitFor();
-    await page.route("**/api/contact", (route) => route.abort());
-    await page.getByRole("button", { name: "Send enquiry" }).click();
+      .getByLabel("Your name", { exact: true })
+      .fill("Browser verification");
     await page
-      .getByText(
-        "The server did not confirm delivery. Please use the email link or try again later.",
-      )
-      .waitFor();
-    assert.equal(
-      await page.getByText("Message sent.", { exact: false }).count(),
-      0,
-    );
-    results.push(
-      "Real unconfigured contact API returns 503; network failure is actionable; no false success",
-    );
-    await page.unroute("**/api/contact");
+      .getByLabel("Email address", { exact: true })
+      .fill("test@example.com");
+    await page
+      .getByLabel("What are you working on?")
+      .fill("Checking the real unavailable SMTP state in a local test.");
+    if (process.argv.includes("--email")) {
+      const apiRequests = [];
+      page.on("request", (request) => {
+        if (request.url().endsWith("/api/contact"))
+          apiRequests.push(request.url());
+      });
+      await page.getByRole("button", { name: "Create email draft" }).click();
+      await page
+        .getByText(
+          "Complete sending in your email app. If no draft appears, use the email link.",
+        )
+        .waitFor();
+      assert.deepEqual(apiRequests, []);
+      assert.equal(
+        await page.getByText("Message sent.", { exact: false }).count(),
+        0,
+      );
+      results.push(
+        "Static contact creates an email draft without API calls or false delivery confirmation",
+      );
+    } else {
+      const submission = page.waitForResponse((response) =>
+        response.url().endsWith("/api/contact"),
+      );
+      await page.getByRole("button", { name: "Send enquiry" }).click();
+      assert.equal((await submission).status(), 503);
+      await page
+        .getByText(
+          "Message delivery is not available right now. Please use the email link.",
+        )
+        .waitFor();
+      await page.route("**/api/contact", (route) => route.abort());
+      await page.getByRole("button", { name: "Send enquiry" }).click();
+      await page
+        .getByText(
+          "The server did not confirm delivery. Please use the email link or try again later.",
+        )
+        .waitFor();
+      assert.equal(
+        await page.getByText("Message sent.", { exact: false }).count(),
+        0,
+      );
+      results.push(
+        "Real unconfigured contact API returns 503; network failure is actionable; no false success",
+      );
+      await page.unroute("**/api/contact");
+    }
   }
   await page.mouse.move(300, 300);
   assert.equal(

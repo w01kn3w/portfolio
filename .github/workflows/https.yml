@@ -1,0 +1,32 @@
+name: Enable custom domain HTTPS
+on:
+  workflow_dispatch:
+permissions:
+  pages: write
+concurrency:
+  group: atajan-https
+  cancel-in-progress: false
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Wait for the GitHub-managed certificate and enable HTTPS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..30}; do
+            if gh api --method PUT "repos/$GH_REPO/pages" -F https_enforced=true > /dev/null 2>&1; then
+              curl --fail --silent --show-error --retry 3 --retry-delay 5 https://atajan.org/ -o /tmp/atajan-https.html
+              grep -q 'Atajan' /tmp/atajan-https.html
+              echo 'HTTPS is enforced and the public site returned valid content.'
+              exit 0
+            fi
+            echo "Awaiting the GitHub-managed certificate, attempt $attempt of 30."
+            sleep 20
+          done
+          echo '::error::The GitHub certificate is still pending. Check Settings > Pages and rerun when issuance completes.'
+          exit 1

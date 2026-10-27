@@ -24,7 +24,9 @@ Reference: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your
 
 ## Contact and required owner information
 
-Confirm that admin@atajan.org is a working mailbox, or supply a replacement public contact address. The static form creates a mailto draft. It does not send server-side mail. Server-side delivery would require a separately configured form endpoint/provider, outside GitHub Pages. Never put private credentials into frontend environment variables.
+The owner confirmed that admin@atajan.org does not exist yet. Production contact mode is `unavailable`, so no uncreated address or mail form is displayed. After a working mailbox is confirmed, `email` mode supports a mailto draft. Server-side delivery would require a separately configured endpoint/provider, outside GitHub Pages. Never put private credentials into frontend environment variables.
+
+The owner has now entered the DNS records. Google public DNS confirms the four GitHub A values and the www CNAME. Local resolvers can retain the previous negative result until its TTL expires. The manually triggered `Enable custom domain HTTPS` workflow retries certificate readiness for up to ten minutes, enables HTTPS through the Pages API, and verifies the public HTTPS response. It fails explicitly if issuance remains pending; rerun it after GitHub finishes provisioning.
 
 No registrar password, SSH credential, private key or GitHub token is needed in chat. The owner can complete the DNS records directly and report completion for verification.
 

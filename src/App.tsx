@@ -6,6 +6,7 @@ import { profile, technologies } from "./content";
 
 const Architecture = lazy(() => import("./Architecture"));
 const emailDraftMode = import.meta.env.VITE_CONTACT_MODE === "email";
+const contactUnavailable = import.meta.env.VITE_CONTACT_MODE === "unavailable";
 class ContactError extends Error {}
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -79,6 +80,29 @@ function Contact() {
       );
     }
   }
+  if (contactUnavailable)
+    return (
+      <section
+        className="contact section-width"
+        id="contact"
+        aria-labelledby="contact-title"
+      >
+        <div className="contact-heading">
+          <h2 id="contact-title">
+            Have a problem
+            <br />
+            worth <em>solving?</em>
+          </h2>
+        </div>
+        <p className="contact-intro">Contact details are being set up.</p>
+        <p className="muted">
+          A direct way to get in touch will appear here soon.
+        </p>
+        <a className="text-link" href={profile.source}>
+          Explore the source <Arrow diagonal />
+        </a>
+      </section>
+    );
   return (
     <section
       className="contact section-width"
