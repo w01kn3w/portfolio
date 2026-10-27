@@ -1,0 +1,48 @@
+name: Deploy dedicated VPS service
+# Disabled until the host is audited and the dedicated service is prepared.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: atajan-vps-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && vars.VPS_DEPLOY_ENABLED == 'true'
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+        env:
+          VITE_BASE_PATH: /
+      - name: Upload and activate release
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.VPS_HOST }}
+          SSH_USER: ${{ secrets.VPS_USER }}
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [[ "$SSH_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || { echo 'Configure VPS_HOST'; exit 1; }
+          [[ "$SSH_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] || { echo 'Configure VPS_USER'; exit 1; }
+          test -n "$SSH_KEY" && test -n "$SSH_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/deploy_key' EXIT
+          tar -czf release.tgz dist server package.json package-lock.json scripts/deploy-release.sh
+          SSH_ARGS=(-i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes)
+          ssh "${SSH_ARGS[@]}" "$SSH_USER@$SSH_HOST" 'test -d /srv/atajan/incoming && test -d /srv/atajan/releases'
+          scp "${SSH_ARGS[@]}" release.tgz "$SSH_USER@$SSH_HOST:/srv/atajan/incoming/$GITHUB_SHA.tgz"
+          ssh "${SSH_ARGS[@]}" "$SSH_USER@$SSH_HOST" "tar -xOf /srv/atajan/incoming/$GITHUB_SHA.tgz scripts/deploy-release.sh | bash -s -- $GITHUB_SHA"

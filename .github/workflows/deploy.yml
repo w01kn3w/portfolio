@@ -23,6 +23,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+        env:
+          VITE_BASE_PATH: /portfolio/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -36,3 +38,7 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Check published page
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 10 "$PAGE_URL" > /dev/null

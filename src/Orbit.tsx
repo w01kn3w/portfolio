@@ -20,35 +20,60 @@ export default function Orbit() {
       height = 0,
       frame = 0,
       phase = 0.55,
-      lastTime = 0;
+      lastTime = 0,
+      lastDrawTime = 0;
     let inView = true;
     const pointer = { x: 0, y: 0, currentX: 0, currentY: 0 };
+    // Cache unit geometry once; each frame only rotates and scales it.
+    const rings = Array.from({ length: 38 }, (_, ring) => {
+      const latitude = (ring / 37) * Math.PI;
+      const points = new Float32Array(121 * 3);
+      for (let point = 0; point <= 120; point++) {
+        const angle = (point / 120) * Math.PI * 2;
+        points[point * 3] = Math.cos(angle) * Math.sin(latitude);
+        points[point * 3 + 1] = Math.sin(angle) * Math.sin(latitude);
+        points[point * 3 + 2] = Math.cos(latitude);
+      }
+      return points;
+    });
     function draw() {
       if (!context) return;
       context.clearRect(0, 0, width, height);
       const radius = Math.min(width * 0.36, height * 0.36);
-      context.strokeStyle = "#191b18";
-      context.lineWidth = 1.05;
+      context.strokeStyle = "#8eb5a244";
+      context.lineWidth = 0.6;
+      for (let line = 0; line < 7; line++) {
+        const position = (line + 1) / 8;
+        context.beginPath();
+        context.moveTo(width * position, height * 0.1);
+        context.lineTo(width * position, height * 0.9);
+        context.moveTo(width * 0.1, height * position);
+        context.lineTo(width * 0.9, height * position);
+        context.stroke();
+      }
+      context.strokeStyle = "#b4ddad";
+      context.lineWidth = 0.75;
       const tilt = 0.48 + pointer.currentX * 0.3;
       const twist = phase + pointer.currentY * 0.3;
-      for (let ring = 0; ring < 38; ring++) {
-        const latitude = (ring / 37) * Math.PI;
-        const ringRadius = Math.sin(latitude) * radius;
-        const depth = Math.cos(latitude) * radius;
-        context.beginPath();
+      const cosTwist = Math.cos(twist),
+        sinTwist = Math.sin(twist);
+      const cosTilt = Math.cos(tilt),
+        sinTilt = Math.sin(tilt);
+      context.beginPath();
+      for (const points of rings) {
         for (let point = 0; point <= 120; point++) {
-          const angle = (point / 120) * Math.PI * 2;
-          const x = Math.cos(angle) * ringRadius,
-            y = Math.sin(angle) * ringRadius;
-          const rotatedX = x * Math.cos(twist) - depth * Math.sin(twist);
-          const rotatedZ = x * Math.sin(twist) + depth * Math.cos(twist);
-          const rotatedY = y * Math.cos(tilt) - rotatedZ * Math.sin(tilt);
+          const x = points[point * 3] * radius,
+            y = points[point * 3 + 1] * radius;
+          const depth = points[point * 3 + 2] * radius;
+          const rotatedX = x * cosTwist - depth * sinTwist;
+          const rotatedZ = x * sinTwist + depth * cosTwist;
+          const rotatedY = y * cosTilt - rotatedZ * sinTilt;
           if (point === 0)
             context.moveTo(width / 2 + rotatedX, height / 2 + rotatedY);
           else context.lineTo(width / 2 + rotatedX, height / 2 + rotatedY);
         }
-        context.stroke();
       }
+      context.stroke();
     }
     function tick(time: number) {
       const elapsed = lastTime ? Math.min(time - lastTime, 50) : 16;
@@ -56,12 +81,16 @@ export default function Orbit() {
       phase += elapsed * 0.00009;
       pointer.currentX += (pointer.x - pointer.currentX) * 0.035;
       pointer.currentY += (pointer.y - pointer.currentY) * 0.035;
-      draw();
+      if (time - lastDrawTime >= 1000 / 30) {
+        draw();
+        lastDrawTime = time;
+      }
       frame = requestAnimationFrame(tick);
     }
     function sync() {
       cancelAnimationFrame(frame);
       lastTime = 0;
+      lastDrawTime = 0;
       draw();
       if (!pausedRef.current && !motion.matches && !document.hidden && inView)
         frame = requestAnimationFrame(tick);
@@ -111,13 +140,13 @@ export default function Orbit() {
     <div className="orbit">
       <canvas ref={canvasRef} aria-hidden="true" />
       <div className="orbit-caption">
-        <span>Идея обретает форму</span>
+        <span>Canvas study / pointer responsive</span>
         <button
           type="button"
           aria-pressed={paused}
           onClick={() => setPaused(!paused)}
         >
-          {paused ? "Продолжить" : "Пауза"}
+          {paused ? "Play" : "Pause"}
           <svg viewBox="0 0 16 16" aria-hidden="true">
             {paused ? <path d="m5 3 7 5-7 5Z" /> : <path d="M5 3v10M11 3v10" />}
           </svg>

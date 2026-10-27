@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import Orbit from "./Orbit";
-import { profile, projects } from "./content";
+import Cursor from "./Cursor";
+import { profile, technologies } from "./content";
 
-function Arrow({ diagonal = false }: { diagonal?: boolean }) {
+const Architecture = lazy(() => import("./Architecture"));
+class ContactError extends Error {}
+
+export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
     <svg className="arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d={diagonal ? "M5 19 19 5M5 5h14v14" : "M4 12h15m-6-6 6 6-6 6"} />
@@ -10,261 +15,622 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   );
 }
 
-export default function App() {
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
+function Contact() {
+  const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
-  async function copyEmail() {
+  const [feedback, setFeedback] = useState("");
+  const [copy, setCopy] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = Object.fromEntries(new FormData(form));
+    setState("sending");
+    setFeedback("");
     try {
-      await navigator.clipboard.writeText(profile.email);
-      setCopyState("copied");
-    } catch {
-      setCopyState("failed");
+      const response = await fetch(`${import.meta.env.BASE_URL}api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!response.ok) {
+        if (response.status === 429)
+          throw new ContactError(
+            "Too many requests. Please wait before trying again.",
+          );
+        if (response.status === 400)
+          throw new ContactError(
+            "Please check your name, email and message, then try again.",
+          );
+        throw new ContactError(
+          "Message delivery is not available right now. Please use the email link.",
+        );
+      }
+      const result: { success?: boolean } = await response.json();
+      if (!result.success)
+        throw new ContactError(
+          "Delivery could not be confirmed. Please use the email link.",
+        );
+      setState("success");
+      setFeedback("Message sent. Thank you for sharing your project.");
+      form.reset();
+    } catch (error) {
+      setState("error");
+      setFeedback(
+        error instanceof ContactError
+          ? error.message
+          : "The server did not confirm delivery. Please use the email link or try again later.",
+      );
     }
   }
   return (
-    <>
-      <a className="skip-link" href="#main">
-        К содержимому
-      </a>
-      <div className="opening" id="top">
-        <header className="site-header page-width">
-          <a className="wordmark" href="#top" aria-label="Atajan, на главную">
-            a<span className="wordmark-dot" />
+    <section
+      className="contact section-width"
+      id="contact"
+      aria-labelledby="contact-title"
+    >
+      <div className="contact-heading">
+        <h2 id="contact-title">
+          Have a problem
+          <br />
+          worth <em>solving?</em>
+        </h2>
+        <a
+          className="contact-orbit"
+          href={`mailto:${profile.email}`}
+          aria-label="Write an email"
+        >
+          <Arrow diagonal />
+        </a>
+      </div>
+      <div className="contact-layout">
+        <div>
+          <p className="contact-intro">
+            Let's turn your idea into a reliable digital product.
+          </p>
+          <p className="muted">
+            Tell me what you want to build, what needs fixing, and what a good
+            result looks like.
+          </p>
+          <a className="email" href={`mailto:${profile.email}`}>
+            {profile.email}
           </a>
-          <nav aria-label="Основная навигация">
-            <a href="#work">
-              Проекты <span>{String(projects.length).padStart(2, "0")}</span>
-            </a>
-            <a href="#about">Обо мне</a>
-            <a href="#contact">
-              Написать <Arrow diagonal />
+          <button
+            className="text-button"
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(profile.email);
+                setCopy("Email copied.");
+              } catch {
+                setCopy("Copy unavailable. Select the address above.");
+              }
+            }}
+          >
+            Copy email <Arrow />
+          </button>
+          <span role="status" className="feedback">
+            {copy}
+          </span>
+          <p className="contact-note">
+            Email address provided in this repository. Message delivery requires
+            server configuration.
+          </p>
+        </div>
+        <form onSubmit={submit} className="contact-form">
+          <div className="form-row">
+            <label>
+              Your name
+              <input
+                name="name"
+                autoComplete="name"
+                required
+                minLength={2}
+                maxLength={100}
+                placeholder="Alex Morgan"
+              />
+            </label>
+            <label>
+              Email address
+              <input
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                maxLength={254}
+                placeholder="alex@company.com"
+              />
+            </label>
+          </div>
+          <label>
+            What are you working on?
+            <textarea
+              name="message"
+              required
+              minLength={20}
+              maxLength={5000}
+              rows={3}
+              placeholder="A little about your project, timeline and the problem to solve…"
+            />
+          </label>
+          <div className="honeypot" aria-hidden="true">
+            <label>
+              Leave this field empty
+              <input name="website" tabIndex={-1} autoComplete="off" />
+            </label>
+          </div>
+          <div className="form-end">
+            <span>Only used to reply to your enquiry.</span>
+            <button
+              className="button primary"
+              disabled={state === "sending"}
+              type="submit"
+            >
+              {state === "sending" ? "Sending…" : "Send enquiry"}
+              <Arrow diagonal />
+            </button>
+          </div>
+          <p className={`feedback ${state}`} role="status" aria-live="polite">
+            {feedback}
+          </p>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function CaseStudy() {
+  return (
+    <section
+      id="work"
+      className="work section-width"
+      aria-labelledby="work-title"
+    >
+      <div className="section-head">
+        <h2 id="work-title">
+          Built to be
+          <br />
+          <em>explored.</em>
+        </h2>
+        <p>
+          A closer look at the code.
+          <br />
+          One verified project, open for inspection.
+        </p>
+      </div>
+      <article className="project">
+        <a
+          href="#case-study"
+          className="project-art"
+          onClick={() => {
+            const details = document.getElementById("case-study");
+            if (details instanceof HTMLDetailsElement) details.open = true;
+          }}
+          data-cursor="VIEW"
+        >
+          <div className="art-top">
+            <span>ATAJAN / WEB EXPERIENCE</span>
+            <Arrow diagonal />
+          </div>
+          <div className="study-art">
+            <div className="study-axis" />
+            <div className="study-rings">
+              {Array.from({ length: 12 }, (_, i) => (
+                <i key={i} style={{ transform: `rotate(${i * 15}deg)` }} />
+              ))}
+            </div>
+            <div className="study-type">
+              Ideas.
+              <br />
+              <span>Engineered.</span>
+            </div>
+            <span className="art-coordinate">
+              INTERACTION STUDY / CANVAS 2D
+            </span>
+          </div>
+          <div className="art-bottom">
+            <span>Personal portfolio</span>
+            <span>
+              Explore the build <Arrow />
+            </span>
+          </div>
+        </a>
+        <div className="project-info">
+          <div>
+            <span className="project-kind">
+              Creative development / Personal project
+            </span>
+            <h3>Atajan. A digital workspace.</h3>
+            <p>
+              A lightweight, interactive portfolio that puts the implementation
+              in view. Expressive on the surface, deliberate underneath.
+            </p>
+          </div>
+          <a className="text-link" href={profile.source} data-cursor="OPEN">
+            Inspect the source <Arrow diagonal />
+          </a>
+        </div>
+        <details className="case-details" id="case-study">
+          <summary>
+            Inside the build{" "}
+            <span>
+              Problem, architecture & decisions <Arrow />
+            </span>
+          </summary>
+          <div className="case-grid">
+            <div>
+              <h4>The problem</h4>
+              <p>
+                Present technical work without burying it behind animation or
+                unsupported claims. Keep the experience usable on a phone, with
+                a keyboard, and with motion turned off.
+              </p>
+              <h4>The approach</h4>
+              <p>
+                React components and typed content, with an optional Canvas
+                sculpture. The contact server is a separate Node process, so the
+                static experience does not depend on email infrastructure.
+              </p>
+            </div>
+            <div>
+              <h4>Implementation scope</h4>
+              <p>
+                Frontend, interaction design, contact API and deployment
+                configuration in this repository. No client work, commercial
+                outcomes or production backend experience is implied.
+              </p>
+              <h4>Engineering decisions</h4>
+              <ul>
+                <li>
+                  Canvas 2D instead of a WebGL runtime for the line sculpture.
+                </li>
+                <li>
+                  Animation pauses offscreen and when the document is hidden.
+                </li>
+                <li>
+                  Server validation, bounded requests and SMTP-only success.
+                </li>
+                <li>
+                  Static hosting supported; sending requires the Node service.
+                </li>
+              </ul>
+            </div>
+            <div className="case-stack">
+              <h4>Verified in source</h4>
+              <p>
+                React · TypeScript · Vite · CSS · Canvas · Node.js · GitHub
+                Actions
+              </p>
+              <a className="text-link" href={profile.source}>
+                Repository <Arrow diagonal />
+              </a>
+              <p className="muted">
+                Visual above is an original interaction study for this website.
+                No client screenshots or sample business metrics.
+              </p>
+            </div>
+          </div>
+        </details>
+      </article>
+      <p className="archive-note">
+        More work will join this archive when its source and scope can be
+        verified.
+      </p>
+    </section>
+  );
+}
+
+const steps = [
+  [
+    "Understand",
+    "Start with the problem.",
+    "Define who needs it, what should change, and the constraints that matter.",
+  ],
+  [
+    "Architect",
+    "Make the boundaries clear.",
+    "Map responsibilities, data and integrations before adding complexity.",
+  ],
+  [
+    "Build",
+    "Work in useful increments.",
+    "Keep the implementation readable and the important decisions visible.",
+  ],
+  [
+    "Test",
+    "Check the real behaviour.",
+    "Exercise the critical flows, failure cases and devices people actually use.",
+  ],
+  [
+    "Deploy",
+    "Make release repeatable.",
+    "Validate the build, check the running service and keep a rollback path.",
+  ],
+] as const;
+
+export default function App() {
+  const [step, setStep] = useState(0);
+  const [techGroup, setTechGroup] = useState<string | null>("Frontend");
+  useEffect(() => {
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) {
+            if (!motion.matches)
+              entry.target.animate(
+                [
+                  { opacity: 0.5, transform: "translateY(22px)" },
+                  { opacity: 1, transform: "translateY(0)" },
+                ],
+                { duration: 650, easing: "cubic-bezier(.16,1,.3,1)" },
+              );
+            observer.unobserve(entry.target);
+          }
+      },
+      { threshold: 0.15 },
+    );
+    document
+      .querySelectorAll(".project-art,.process")
+      .forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+  const isNotFound =
+    window.location.pathname !== import.meta.env.BASE_URL &&
+    window.location.pathname !== `${import.meta.env.BASE_URL}index.html`;
+  if (isNotFound)
+    return (
+      <main className="not-found section-width">
+        <span className="wordmark">
+          Atajan<span>.</span>
+        </span>
+        <p>404 / Page not found</p>
+        <h1>
+          A wrong turn.
+          <br />
+          <em>A way back.</em>
+        </h1>
+        <a className="button primary" href={import.meta.env.BASE_URL}>
+          Back to the portfolio <Arrow />
+        </a>
+      </main>
+    );
+  return (
+    <>
+      <Cursor />
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <div id="top" className="opening">
+        <header className="site-header section-width">
+          <a href="#top" className="wordmark" aria-label="Atajan home">
+            Atajan<span>.</span>
+          </a>
+          <nav aria-label="Main navigation">
+            <a href="#work">Work</a>
+            <a href="#engineering">Engineering</a>
+            <a href="#about">About</a>
+            <a className="nav-contact" href="#contact">
+              Let's talk <Arrow diagonal />
             </a>
           </nav>
         </header>
         <main id="main">
-          <section className="hero page-width" aria-labelledby="hero-title">
-            <div className="name-line">
-              <h1 id="hero-title">
-                {profile.name}
-                <span className="name-period">.</span>
-              </h1>
-              <span className="name-note">
-                Личное
-                <br />
-                пространство
-                <br />в интернете
-              </span>
+          <section className="hero section-width" aria-labelledby="hero-title">
+            <div className="hero-topline">
+              <p>Freelance full-stack developer</p>
+              <span>Independent thinking. Practical engineering.</span>
             </div>
-            <div className="hero-lower">
-              <div className="hero-copy">
-                <h2>
-                  Из любопытства —<br />в реальные вещи.
-                </h2>
-                <p>
-                  Привет, я Atajan. Здесь собираю свои проекты и пробую новое.
-                  Мне интересно, как идея становится чем-то, что можно открыть,
-                  потрогать и использовать.
-                </p>
-                <a className="solid-link" href="#work">
-                  Посмотреть проекты <Arrow />
-                </a>
-              </div>
+            <div className="hero-stage">
+              <h1 id="hero-title">
+                Engineering
+                <br />
+                <span>digital experiences</span>
+                <br />
+                <em>that work.</em>
+              </h1>
               <Orbit />
             </div>
-            <div className="hero-bottom">
-              <span>Всегда есть что попробовать.</span>
-              <a href="#work" aria-label="Перейти к проектам">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 4v16m-6-6 6 6 6-6" />
-                </svg>
+            <div className="hero-base">
+              <p>
+                Full-stack development, backend systems and automation
+                engineered for real-world impact.
+              </p>
+              <div className="hero-actions">
+                <a className="button primary" href="#work" data-magnetic>
+                  Explore my work <Arrow />
+                </a>
+                <a className="text-link" href="#contact">
+                  Let's build something <Arrow diagonal />
+                </a>
+              </div>
+            </div>
+            <div className="hero-foot">
+              <span>Built with intention. Open to inspection.</span>
+              <a href="#work">
+                Scroll to explore <span className="scroll-line" />
               </a>
-              <span>Портфолио / 2026</span>
             </div>
           </section>
-          <section
-            className="work-section"
-            id="work"
-            aria-labelledby="work-title"
-          >
-            <div className="page-width">
-              <div className="section-heading">
-                <h2 id="work-title">
-                  Сделано.
+          <CaseStudy />
+          <section id="engineering" className="engineering">
+            <div className="section-width">
+              <div className="section-head">
+                <h2>
+                  Good interfaces.
                   <br />
-                  <span>И продолжается.</span>
+                  <em>Solid foundations.</em>
                 </h2>
                 <p>
-                  Небольшая коллекция.
-                  <br />У каждой работы — своё начало.
+                  The experience extends beyond the screen.
+                  <br />
+                  Data, integrations and failure states matter too.
                 </p>
               </div>
-              {projects.map((project) => (
-                <article className="project" key={project.slug}>
-                  <a
-                    className="project-art"
-                    href={project.sourceUrl}
-                    aria-label={`${project.title} — исходный код на GitHub`}
+              <Suspense
+                fallback={
+                  <p className="loading" role="status">
+                    Loading the architecture explorer…
+                  </p>
+                }
+              >
+                <Architecture />
+              </Suspense>
+              <div className="engineering-note">
+                <span>Implemented here</span>
+                <p>
+                  A Node.js contact endpoint with input validation, request
+                  limits and server-side SMTP configuration. An unconfigured
+                  mail service returns an error, never a false confirmation.
+                </p>
+                <a className="text-link" href={profile.source}>
+                  Read the implementation <Arrow diagonal />
+                </a>
+              </div>
+            </div>
+          </section>
+          <section id="about" className="about section-width">
+            <div className="about-intro">
+              <h2>
+                Curiosity in.
+                <br />
+                <em>Working software out.</em>
+              </h2>
+              <div>
+                <p className="large-copy">
+                  I'm Atajan, a freelance full-stack developer focused on useful
+                  digital products.
+                </p>
+                <p>
+                  I work across interfaces, backend systems, API integrations
+                  and automation. My approach is practical: understand the
+                  problem, make the structure clear, and build something people
+                  can use.
+                </p>
+                <a className="text-link" href="#contact">
+                  Tell me about your project <Arrow diagonal />
+                </a>
+              </div>
+            </div>
+            <div className="process">
+              <div
+                className="process-tabs"
+                role="tablist"
+                aria-label="Development process"
+              >
+                {steps.map(([title], i) => (
+                  <button
+                    key={title}
+                    role="tab"
+                    id={`step-${i}`}
+                    aria-controls="step-panel"
+                    aria-selected={step === i}
+                    tabIndex={step === i ? 0 : -1}
+                    onClick={() => setStep(i)}
+                    onKeyDown={(event) => {
+                      const next =
+                        event.key === "ArrowRight"
+                          ? (i + 1) % steps.length
+                          : event.key === "ArrowLeft"
+                            ? (i + steps.length - 1) % steps.length
+                            : event.key === "Home"
+                              ? 0
+                              : event.key === "End"
+                                ? steps.length - 1
+                                : null;
+                      if (next !== null) {
+                        event.preventDefault();
+                        setStep(next);
+                        document.getElementById(`step-${next}`)?.focus();
+                      }
+                    }}
                   >
-                    {project.preview === "portfolio" ? (
-                      <div className="mini-site" aria-hidden="true">
-                        <div className="mini-header">
-                          <span>a.</span>
-                          <span>Идеи в действии</span>
-                        </div>
-                        <span className="mini-name">Atajan.</span>
-                        <div className="mini-bottom">
-                          <span>
-                            Всё начинается
-                            <br />с любопытства.
-                          </span>
-                          <div className="mini-orb">
-                            {Array.from({ length: 15 }, (_, i) => (
-                              <i
-                                key={i}
-                                style={{ transform: `rotate(${i * 12}deg)` }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="generic-preview">
-                        <span>{project.title}</span>
-                        <span>{project.technologies.join(" / ")}</span>
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                    {title}
+                    <Arrow />
+                  </button>
+                ))}
+              </div>
+              <div
+                className="process-description"
+                role="tabpanel"
+                id="step-panel"
+                aria-labelledby={`step-${step}`}
+                tabIndex={0}
+              >
+                <h3>{steps[step][1]}</h3>
+                <p>{steps[step][2]}</p>
+              </div>
+            </div>
+            <div className="stack">
+              <h3>
+                The tools behind
+                <br />
+                this experience.
+              </h3>
+              <div className="stack-map">
+                {technologies.map((group) => (
+                  <div className="stack-row" key={group.category}>
+                    <button
+                      type="button"
+                      aria-expanded={techGroup === group.category}
+                      aria-controls={`tech-${group.category.split(" ")[0]}`}
+                      onClick={() =>
+                        setTechGroup(
+                          techGroup === group.category ? null : group.category,
+                        )
+                      }
+                    >
+                      {group.category}
+                      <Arrow />
+                    </button>
+                    <p>
+                      {group.items.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </p>
+                    {techGroup === group.category && (
+                      <div
+                        className="tech-evidence"
+                        id={`tech-${group.category.split(" ")[0]}`}
+                      >
+                        <p>
+                          {group.category === "Databases"
+                            ? "Database-backed projects will appear when their source can be verified."
+                            : group.category === "Backend"
+                              ? "Implemented in this repository's contact service. SMTP requires server configuration."
+                              : group.category === "Frontend"
+                                ? "Used for this interface, typed content and the pointer-responsive line sculpture."
+                                : group.category === "Infrastructure"
+                                  ? "Build and static deployment are configured in this repository. VPS publication requires owner access."
+                                  : "Used to version, check and test this build. Explore the source to inspect the configuration."}
+                        </p>
+                        <a className="text-link" href={profile.source}>
+                          Inspect the repository <Arrow diagonal />
+                        </a>
                       </div>
                     )}
-                    <span className="art-label">
-                      Открыть исходный код <Arrow diagonal />
-                    </span>
-                  </a>
-                  <div className="project-info">
-                    <div className="project-meta">
-                      <span>{project.category}</span>
-                      <span>{project.year}</span>
-                    </div>
-                    <h3>{project.title}</h3>
-                    <p>{project.description}</p>
-                    <ul className="tags" aria-label="Технологии">
-                      {project.technologies.map((technology) => (
-                        <li key={technology}>{technology}</li>
-                      ))}
-                    </ul>
-                    <div className="project-links">
-                      <a className="text-link" href={project.sourceUrl}>
-                        Код на GitHub <Arrow diagonal />
-                      </a>
-                      {project.liveUrl && (
-                        <a className="text-link" href={project.liveUrl}>
-                          Открыть сайт <Arrow diagonal />
-                        </a>
-                      )}
-                    </div>
                   </div>
-                </article>
-              ))}
-              <div className="next-project">
-                <div className="next-mark" aria-hidden="true">
-                  <span />
-                  <span />
-                </div>
-                <div>
-                  <h3>Место для следующего.</h3>
-                  <p>Новые работы появятся здесь, когда будут готовы.</p>
-                </div>
-                <a href={profile.github} className="text-link">
-                  Мой GitHub <Arrow diagonal />
-                </a>
+                ))}
               </div>
             </div>
+            <p className="stack-note">
+              Select a category to see how it is used in this build.
+            </p>
           </section>
-          <section
-            className="about-section"
-            id="about"
-            aria-labelledby="about-title"
-          >
-            <div className="page-width about-layout">
-              <h2 id="about-title">
-                В процессе.
-                <br />И мне это нравится.
-              </h2>
-              <div className="about-copy">
-                <p className="about-lead">Это портфолио — тоже начало.</p>
-                <p>
-                  Я оставляю здесь место для экспериментов, новых задач и
-                  собственных проектов. Хочется делать вещи, в которых продуманы
-                  и детали, и то, как ими пользуются.
-                </p>
-                <p>
-                  По мере появления работ буду добавлять их сюда: с описанием,
-                  ссылками и кодом, когда его можно открыть.
-                </p>
-                <a href={profile.github} className="text-link">
-                  Посмотреть, над чем работаю <Arrow diagonal />
-                </a>
-              </div>
-            </div>
-          </section>
-          <section
-            className="contact-section"
-            id="contact"
-            aria-labelledby="contact-title"
-          >
-            <div className="page-width">
-              <div className="contact-top">
-                <h2 id="contact-title">
-                  Есть идея?
-                  <br />
-                  Давайте обсудим<span>.</span>
-                </h2>
-                <a
-                  className="contact-arrow"
-                  href={`mailto:${profile.email}`}
-                  aria-label="Написать письмо"
-                >
-                  <Arrow diagonal />
-                </a>
-              </div>
-              <div className="contact-bottom">
-                <a className="email-link" href={`mailto:${profile.email}`}>
-                  {profile.email}
-                </a>
-                <div className="copy-area">
-                  <button
-                    className="copy-button"
-                    type="button"
-                    onClick={copyEmail}
-                  >
-                    Скопировать адрес
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <rect x="8" y="8" width="12" height="12" rx="2" />
-                      <path d="M15 8V4H4v11h4" />
-                    </svg>
-                  </button>
-                  <span className="copy-status" role="status">
-                    {copyState === "copied"
-                      ? "Адрес скопирован"
-                      : copyState === "failed"
-                        ? "Не удалось. Выделите адрес и скопируйте вручную."
-                        : ""}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
+          <Contact />
         </main>
-        <footer className="site-footer page-width">
-          <span>
-            © {new Date().getFullYear()} {profile.name}
-          </span>
-          <a href={profile.github}>
+        <footer className="site-footer section-width">
+          <a className="wordmark" href="#top">
+            Atajan<span>.</span>
+          </a>
+          <span>Thoughtfully built. © {new Date().getFullYear()} Atajan.</span>
+          <a href={profile.source} data-cursor="OPEN">
             GitHub <Arrow diagonal />
           </a>
           <a href="#top">
-            Наверх{" "}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 20V4m-6 6 6-6 6 6" />
-            </svg>
+            Back to top <Arrow />
           </a>
         </footer>
       </div>
