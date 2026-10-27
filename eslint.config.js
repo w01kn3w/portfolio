@@ -6,6 +6,11 @@ export default tseslint.config(
   { ignores: ["dist/**", ".impeccable/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  { files: ["server/**/*.ts"], languageOptions: { globals: globals.node } },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
   {
     files: ["src/**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },

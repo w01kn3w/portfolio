@@ -1,255 +1,325 @@
 {
-  "schemaVersion": 2,
-  "generatedAt": "2026-10-26T16:09:56.191Z",
-  "title": "Design System: Atajan portfolio",
-  "extensions": {
-    "colorMeta": {
-      "orange": {
-        "role": "primary",
-        "displayName": "Persimmon orange",
-        "tonalRamp": [
-          "oklch(15% 0.18 36)",
-          "oklch(26% 0.18 36)",
-          "oklch(38% 0.18 36)",
-          "oklch(49% 0.18 36)",
-          "oklch(61% 0.18 36)",
-          "oklch(72% 0.18 36)",
-          "oklch(84% 0.18 36)",
-          "oklch(95% 0.18 36)"
-        ]
-      },
-      "ink": {
-        "role": "neutral",
-        "displayName": "Almost-black ink",
-        "tonalRamp": [
-          "oklch(15% 0.008 130)",
-          "oklch(26% 0.008 130)",
-          "oklch(38% 0.008 130)",
-          "oklch(49% 0.008 130)",
-          "oklch(61% 0.008 130)",
-          "oklch(72% 0.008 130)",
-          "oklch(84% 0.008 130)",
-          "oklch(95% 0.008 130)"
-        ]
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Cool paper",
-        "tonalRamp": [
-          "oklch(15% 0.006 110)",
-          "oklch(26% 0.006 110)",
-          "oklch(38% 0.006 110)",
-          "oklch(49% 0.006 110)",
-          "oklch(61% 0.006 110)",
-          "oklch(72% 0.006 110)",
-          "oklch(84% 0.006 110)",
-          "oklch(95% 0.006 110)"
-        ]
-      },
-      "muted": {
-        "role": "neutral",
-        "displayName": "Muted gray-green",
-        "tonalRamp": [
-          "oklch(15% 0.014 120)",
-          "oklch(26% 0.014 120)",
-          "oklch(38% 0.014 120)",
-          "oklch(49% 0.014 120)",
-          "oklch(61% 0.014 120)",
-          "oklch(72% 0.014 120)",
-          "oklch(84% 0.014 120)",
-          "oklch(95% 0.014 120)"
-        ]
-      },
-      "line": {
-        "role": "neutral",
-        "displayName": "Fine-rule gray",
-        "tonalRamp": [
-          "oklch(15% 0.009 115)",
-          "oklch(26% 0.009 115)",
-          "oklch(38% 0.009 115)",
-          "oklch(49% 0.009 115)",
-          "oklch(61% 0.009 115)",
-          "oklch(72% 0.009 115)",
-          "oklch(84% 0.009 115)",
-          "oklch(95% 0.009 115)"
-        ]
-      },
-      "artwork": {
-        "role": "neutral",
-        "displayName": "Artwork gray-green",
-        "tonalRamp": [
-          "oklch(15% 0.014 120)",
-          "oklch(26% 0.014 120)",
-          "oklch(38% 0.014 120)",
-          "oklch(49% 0.014 120)",
-          "oklch(61% 0.014 120)",
-          "oklch(72% 0.014 120)",
-          "oklch(84% 0.014 120)",
-          "oklch(95% 0.014 120)"
-        ]
-      }
-    },
-    "typographyMeta": {
-      "display": {
-        "displayName": "Name",
-        "purpose": "Owner name in the introduction."
-      },
-      "headline": {
-        "displayName": "Section heading",
-        "purpose": "Archive and about headings."
-      },
-      "title": {
-        "displayName": "Project title",
-        "purpose": "Published work titles."
-      },
-      "body": {
-        "displayName": "Description",
-        "purpose": "Project and about paragraphs."
-      },
-      "label": {
-        "displayName": "Metadata",
-        "purpose": "Category and year."
-      }
-    },
-    "shadows": [
-      {
-        "name": "preview-paper",
-        "value": "0 25px 35px -22px #191b1850",
-        "purpose": "Only the tilted portfolio preview."
-      }
-    ],
-    "motion": [
-      {
-        "name": "ease",
-        "value": "cubic-bezier(.16,1,.3,1)",
-        "purpose": "Transform transitions."
-      },
-      {
-        "name": "action-lift",
-        "value": ".35s",
-        "purpose": "Primary and text-link transforms."
-      },
-      {
-        "name": "preview-straighten",
-        "value": ".65s",
-        "purpose": "Miniature preview transform."
-      },
-      {
-        "name": "contact-turn",
-        "value": ".5s",
-        "purpose": "Circular email action transform."
-      },
-      {
-        "name": "reduced-motion",
-        "value": "prefers-reduced-motion: reduce",
-        "purpose": "Still canvas, no transitions and automatic scrolling."
-      }
-    ],
-    "breakpoints": [
-      {
-        "name": "wide",
-        "value": "1600px"
-      },
-      {
-        "name": "tablet",
-        "value": "1000px"
-      },
-      {
-        "name": "phone",
-        "value": "680px"
-      }
-    ]
-  },
-  "components": [
-    {
-      "name": "Primary project link",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "Filled link to the archive.",
-      "html": "<a class=\"ds-primary\" href=\"#work\">View projects <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
-      "css": ".ds-primary{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:35px;padding:17px 21px;background:var(--ink,#191b18);color:var(--paper,#efefeb);border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;transition:background .25s,transform .35s cubic-bezier(.16,1,.3,1)}.ds-primary:hover{background:#363a31;transform:translateY(-3px)}.ds-primary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-primary:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
-    },
-    {
-      "name": "Text link",
-      "kind": "button",
-      "refersTo": "button-text",
-      "description": "Source and profile links in open rows.",
-      "html": "<a class=\"ds-text\" href=\"#work\">Code on GitHub <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
-      "css": ".ds-text{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:18px;font-size:12px;font-weight:650;min-height:44px;color:var(--ink,#191b18);text-decoration:none;text-underline-offset:5px}.ds-text:hover{text-decoration:underline}.ds-text svg{transition:transform .35s cubic-bezier(.16,1,.3,1)}.ds-text:hover svg{transform:translate(2px,-2px)}.ds-text svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-text:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-text svg{transition:none}}"
-    },
-    {
-      "name": "Masthead navigation",
-      "kind": "nav",
-      "refersTo": "navigation",
-      "description": "Anchor links with a content-derived project count.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"#work\">Projects <span>01</span></a><a href=\"#about\">About</a><a href=\"#contact\">Contact <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a></nav>",
-      "css": ".ds-nav{font-family:Manrope,sans-serif;display:flex;gap:38px;align-items:center;font-size:14px;font-weight:600;color:var(--ink,#191b18)}.ds-nav a{display:flex;gap:9px;align-items:center;min-height:44px;color:inherit;text-decoration:none;text-underline-offset:5px}.ds-nav span{font-size:10px;align-self:flex-start;padding-top:9px}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}.ds-nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}@media(max-width:680px){.ds-nav{gap:20px;font-size:11px}.ds-nav a:nth-child(2){display:none}}"
-    },
-    {
-      "name": "Technology tag",
-      "kind": "chip",
-      "refersTo": "tag",
-      "description": "Noninteractive technology label.",
-      "html": "<span class=\"ds-tag\">React</span>",
-      "css": ".ds-tag{font-family:Manrope,sans-serif;display:inline-block;font-size:10px;color:var(--ink,#191b18);border:1px solid #aeb1a5;border-radius:4px;padding:6px 10px}"
-    },
-    {
-      "name": "Project artwork",
-      "kind": "card",
-      "refersTo": "project-art",
-      "description": "Generic linked artwork for a record without a portfolio preview.",
-      "html": "<a class=\"ds-art\" href=\"#work\"><span class=\"ds-title\">Project title</span><span class=\"ds-stack\">React / TypeScript</span><span class=\"ds-label\">View source code <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></span></a>",
-      "css": ".ds-art{font-family:Manrope,sans-serif;display:flex;flex-direction:column;justify-content:space-between;gap:30px;min-height:350px;padding:48px 42px 30px;background:var(--artwork,#daddd4);color:var(--ink,#191b18);text-decoration:none;overflow:hidden}.ds-title{font-size:32px;letter-spacing:-.03em}.ds-stack{font-size:12px}.ds-label{display:flex;align-items:center;justify-content:space-between;font-size:10px}.ds-art svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}.ds-art:focus-visible{outline:3px solid var(--ink,#191b18);outline-offset:6px}"
-    },
-    {
-      "name": "Circular email action",
-      "kind": "button",
-      "refersTo": "contact-action",
-      "description": "Direct email link in contact.",
-      "html": "<a class=\"ds-contact\" href=\"mailto:admin@atajan.org\" aria-label=\"Send email\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\"/></svg></a>",
-      "css": ".ds-contact{display:flex;align-items:center;justify-content:center;width:100px;height:100px;border-radius:50%;background:var(--orange,#f1653c);color:var(--ink,#191b18);transition:transform .5s cubic-bezier(.16,1,.3,1)}.ds-contact svg{width:45px;height:45px;fill:none;stroke:currentColor;stroke-width:1}.ds-contact:hover{transform:rotate(45deg)}.ds-contact:focus-visible{outline:3px solid var(--orange,#f1653c);outline-offset:6px}@media(max-width:680px){.ds-contact{width:52px;height:52px}.ds-contact svg{width:27px;height:27px}}@media(prefers-reduced-motion:reduce),(hover:none){.ds-contact{transition:none}.ds-contact:hover{transform:none}}"
-    }
-  ],
-  "narrative": {
-    "northStar": "A personal digital sketchbook in motion",
-    "overview": "A personal digital sketchbook in motion pairs an oversized name with a rotating line sculpture. Persimmon orange fills the introduction, cool paper holds the archive and about text, and ink closes the page with contact details.\n\nSelf-hosted Manrope carries every typographic role. Open columns, fine rules and drawn arrows keep the layout editorial. The miniature site preview supplies the only floating paper effect.",
-    "keyCharacteristics": [
-      "Solid orange, paper and ink fields.",
-      "Oversized Manrope display type with tight tracking.",
-      "Open project rows and fine rules.",
-      "A pausable, pointer-responsive line sculpture."
-    ],
-    "rules": [
-      {
-        "name": "The field rule",
-        "body": "Use orange for the introduction and focused contact accents, paper for reading sections, and ink for contact.",
-        "section": "colors"
-      },
-      {
-        "name": "The shared type rule",
-        "body": "Keep Manrope across display, body and controls. Separate hierarchy through scale, weight and spacing.",
-        "section": "typography"
-      },
-      {
-        "name": "The open row rule",
-        "body": "Keep project information beside its artwork on wide screens and below it on phones. Separate entries with fine rules.",
-        "section": "layout"
-      },
-      {
-        "name": "The optional motion rule",
-        "body": "Keep the sculpture decorative and pausable. Render a still composition when reduced motion is requested.",
-        "section": "components"
-      }
-    ],
-    "dos": [
-      "Do keep source links, technology tags and project descriptions outside preview artwork.",
-      "Do retain keyboard focus, the skip link and the sculpture pause control.",
-      "Do stack project and about columns at the phone breakpoint."
-    ],
-    "donts": [
-      "Don't make decorative canvas content a requirement for reading or navigation.",
-      "Don't hide contact actions inside artwork.",
-      "Don't add continuous motion without preserving reduced-motion and visibility handling."
-    ]
-  }
+    "schemaVersion":  2,
+    "generatedAt":  "2026-10-27T06:16:23.976Z",
+    "title":  "Design System: Atajan portfolio",
+    "extensions":  {
+                       "colorMeta":  {
+                                         "bg":  {
+                                                    "role":  "neutral",
+                                                    "displayName":  "Graphite ground",
+                                                    "tonalRamp":  [
+                                                                      "oklch(15% 0.01 160)",
+                                                                      "oklch(26% 0.01 160)",
+                                                                      "oklch(38% 0.01 160)",
+                                                                      "oklch(49% 0.01 160)",
+                                                                      "oklch(61% 0.01 160)",
+                                                                      "oklch(72% 0.01 160)",
+                                                                      "oklch(84% 0.01 160)",
+                                                                      "oklch(95% 0.01 160)"
+                                                                  ]
+                                                },
+                                         "panel":  {
+                                                       "role":  "neutral",
+                                                       "displayName":  "Inset graphite",
+                                                       "tonalRamp":  [
+                                                                         "oklch(15% 0.015 160)",
+                                                                         "oklch(26% 0.015 160)",
+                                                                         "oklch(38% 0.015 160)",
+                                                                         "oklch(49% 0.015 160)",
+                                                                         "oklch(61% 0.015 160)",
+                                                                         "oklch(72% 0.015 160)",
+                                                                         "oklch(84% 0.015 160)",
+                                                                         "oklch(95% 0.015 160)"
+                                                                     ]
+                                                   },
+                                         "text":  {
+                                                      "role":  "neutral",
+                                                      "displayName":  "Cold off-white",
+                                                      "tonalRamp":  [
+                                                                        "oklch(15% 0.008 140)",
+                                                                        "oklch(26% 0.008 140)",
+                                                                        "oklch(38% 0.008 140)",
+                                                                        "oklch(49% 0.008 140)",
+                                                                        "oklch(61% 0.008 140)",
+                                                                        "oklch(72% 0.008 140)",
+                                                                        "oklch(84% 0.008 140)",
+                                                                        "oklch(95% 0.008 140)"
+                                                                    ]
+                                                  },
+                                         "line":  {
+                                                      "role":  "neutral",
+                                                      "displayName":  "Fine-rule gray",
+                                                      "tonalRamp":  [
+                                                                        "oklch(15% 0.015 150)",
+                                                                        "oklch(26% 0.015 150)",
+                                                                        "oklch(38% 0.015 150)",
+                                                                        "oklch(49% 0.015 150)",
+                                                                        "oklch(61% 0.015 150)",
+                                                                        "oklch(72% 0.015 150)",
+                                                                        "oklch(84% 0.015 150)",
+                                                                        "oklch(95% 0.015 150)"
+                                                                    ]
+                                                  },
+                                         "muted":  {
+                                                       "role":  "neutral",
+                                                       "displayName":  "Muted green-gray",
+                                                       "tonalRamp":  [
+                                                                         "oklch(15% 0.015 150)",
+                                                                         "oklch(26% 0.015 150)",
+                                                                         "oklch(38% 0.015 150)",
+                                                                         "oklch(49% 0.015 150)",
+                                                                         "oklch(61% 0.015 150)",
+                                                                         "oklch(72% 0.015 150)",
+                                                                         "oklch(84% 0.015 150)",
+                                                                         "oklch(95% 0.015 150)"
+                                                                     ]
+                                                   },
+                                         "lime":  {
+                                                      "role":  "primary",
+                                                      "displayName":  "Electric lime",
+                                                      "tonalRamp":  [
+                                                                        "oklch(15% 0.15 125)",
+                                                                        "oklch(26% 0.15 125)",
+                                                                        "oklch(38% 0.15 125)",
+                                                                        "oklch(49% 0.15 125)",
+                                                                        "oklch(61% 0.15 125)",
+                                                                        "oklch(72% 0.15 125)",
+                                                                        "oklch(84% 0.15 125)",
+                                                                        "oklch(95% 0.15 125)"
+                                                                    ]
+                                                  },
+                                         "lime-hover":  {
+                                                            "role":  "primary",
+                                                            "displayName":  "Light lime",
+                                                            "tonalRamp":  [
+                                                                              "oklch(15% 0.12 125)",
+                                                                              "oklch(26% 0.12 125)",
+                                                                              "oklch(38% 0.12 125)",
+                                                                              "oklch(49% 0.12 125)",
+                                                                              "oklch(61% 0.12 125)",
+                                                                              "oklch(72% 0.12 125)",
+                                                                              "oklch(84% 0.12 125)",
+                                                                              "oklch(95% 0.12 125)"
+                                                                          ]
+                                                        },
+                                         "on-lime":  {
+                                                         "role":  "neutral",
+                                                         "displayName":  "Dark action text",
+                                                         "tonalRamp":  [
+                                                                           "oklch(15% 0.025 125)",
+                                                                           "oklch(26% 0.025 125)",
+                                                                           "oklch(38% 0.025 125)",
+                                                                           "oklch(49% 0.025 125)",
+                                                                           "oklch(61% 0.025 125)",
+                                                                           "oklch(72% 0.025 125)",
+                                                                           "oklch(84% 0.025 125)",
+                                                                           "oklch(95% 0.025 125)"
+                                                                       ]
+                                                     },
+                                         "artwork":  {
+                                                         "role":  "neutral",
+                                                         "displayName":  "Artwork graphite",
+                                                         "tonalRamp":  [
+                                                                           "oklch(15% 0.025 160)",
+                                                                           "oklch(26% 0.025 160)",
+                                                                           "oklch(38% 0.025 160)",
+                                                                           "oklch(49% 0.025 160)",
+                                                                           "oklch(61% 0.025 160)",
+                                                                           "oklch(72% 0.025 160)",
+                                                                           "oklch(84% 0.025 160)",
+                                                                           "oklch(95% 0.025 160)"
+                                                                       ]
+                                                     },
+                                         "error":  {
+                                                       "role":  "tertiary",
+                                                       "displayName":  "Warm error",
+                                                       "tonalRamp":  [
+                                                                         "oklch(15% 0.08 45)",
+                                                                         "oklch(26% 0.08 45)",
+                                                                         "oklch(38% 0.08 45)",
+                                                                         "oklch(49% 0.08 45)",
+                                                                         "oklch(61% 0.08 45)",
+                                                                         "oklch(72% 0.08 45)",
+                                                                         "oklch(84% 0.08 45)",
+                                                                         "oklch(95% 0.08 45)"
+                                                                     ]
+                                                   }
+                                     },
+                       "typographyMeta":  {
+                                              "display":  {
+                                                              "displayName":  "Hero statement",
+                                                              "purpose":  "Large engineering statement."
+                                                          },
+                                              "headline":  {
+                                                               "displayName":  "Section heading",
+                                                               "purpose":  "Work and engineering headings."
+                                                           },
+                                              "title":  {
+                                                            "displayName":  "Project title",
+                                                            "purpose":  "Verified portfolio case."
+                                                        },
+                                              "body":  {
+                                                           "displayName":  "Reading copy",
+                                                           "purpose":  "Descriptions and implementation details."
+                                                       },
+                                              "label":  {
+                                                            "displayName":  "Interface label",
+                                                            "purpose":  "Form and technical labels."
+                                                        },
+                                              "code":  {
+                                                           "displayName":  "Code",
+                                                           "purpose":  "Endpoint request and response examples."
+                                                       }
+                                          },
+                       "shadows":  [
+
+                                   ],
+                       "motion":  [
+                                      {
+                                          "name":  "ease",
+                                          "value":  "cubic-bezier(0.16, 1, 0.3, 1)",
+                                          "purpose":  "Transform and state transitions."
+                                      },
+                                      {
+                                          "name":  "action-arrow",
+                                          "value":  "0.4s",
+                                          "purpose":  "Arrow movement on action hover."
+                                      },
+                                      {
+                                          "name":  "sculpture-type",
+                                          "value":  "0.8s",
+                                          "purpose":  "Artwork type movement."
+                                      },
+                                      {
+                                          "name":  "project-rings",
+                                          "value":  "1.2s",
+                                          "purpose":  "Project ring rotation."
+                                      },
+                                      {
+                                          "name":  "contact-turn",
+                                          "value":  "0.6s",
+                                          "purpose":  "Circular contact action."
+                                      },
+                                      {
+                                          "name":  "reduced-motion",
+                                          "value":  "prefers-reduced-motion: reduce",
+                                          "purpose":  "Still artwork, automatic scrolling and disabled transitions."
+                                      }
+                                  ],
+                       "breakpoints":  [
+                                           {
+                                               "name":  "wide",
+                                               "value":  "1600px"
+                                           },
+                                           {
+                                               "name":  "tablet",
+                                               "value":  "1100px"
+                                           },
+                                           {
+                                               "name":  "phone",
+                                               "value":  "760px"
+                                           }
+                                       ]
+                   },
+    "components":  [
+                       {
+                           "name":  "Primary action",
+                           "kind":  "button",
+                           "refersTo":  "button-primary",
+                           "description":  "Filled navigation and contact submission control.",
+                           "html":  "\u003ca class=\"ds-primary\" href=\"#work\"\u003eExplore my work \u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
+                           "css":  ".ds-primary{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:55px;padding:17px 23px;border:0;border-radius:0;font-size:13px;font-weight:650;background:var(--lime,#c5f16c);color:#17200f;text-decoration:none;transition:background .25s}.ds-primary:hover{background:#dcffa1}.ds-primary:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
+                       },
+                       {
+                           "name":  "Text action",
+                           "kind":  "button",
+                           "refersTo":  "button-text",
+                           "description":  "Open source and contact links.",
+                           "html":  "\u003ca class=\"ds-text\" href=\"#contact\"\u003eLet\u0027s build something \u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
+                           "css":  ".ds-text{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:16px;min-height:44px;font-size:13px;color:#e9ece6;text-decoration:none}.ds-text:hover{color:var(--lime,#c5f16c)}.ds-text:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
+                       },
+                       {
+                           "name":  "Contact field",
+                           "kind":  "input",
+                           "refersTo":  "input",
+                           "description":  "Persistent label and underlined transparent field.",
+                           "html":  "\u003clabel class=\"ds-label\"\u003eYour name\u003cinput class=\"ds-field\" name=\"name\" placeholder=\"Alex Morgan\" autocomplete=\"name\" /\u003e\u003c/label\u003e",
+                           "css":  ".ds-label{font-family:Manrope,sans-serif;display:flex;flex-direction:column;gap:12px;font-size:12px;color:#e9ece6}.ds-field{font:13px Manrope,sans-serif;border:0;border-bottom:1px solid #53604f;background:none;color:#e9ece6;border-radius:0;min-width:0;padding:10px 0 16px;caret-color:var(--lime,#c5f16c)}.ds-field::placeholder{color:#99a59c;opacity:1}.ds-field:hover{border-bottom-color:var(--lime,#c5f16c)}.ds-field:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:4px}"
+                       },
+                       {
+                           "name":  "Masthead navigation",
+                           "kind":  "nav",
+                           "refersTo":  "navigation",
+                           "description":  "Text anchor navigation with lime hover.",
+                           "html":  "\u003cnav class=\"ds-nav\" aria-label=\"Main navigation\"\u003e\u003ca href=\"#work\"\u003eWork\u003c/a\u003e\u003ca href=\"#engineering\"\u003eEngineering\u003c/a\u003e\u003ca href=\"#contact\"\u003eContact\u003c/a\u003e\u003c/nav\u003e",
+                           "css":  ".ds-nav{font-family:Manrope,sans-serif;display:flex;gap:38px;align-items:center;font-size:13px;color:#e9ece6}.ds-nav a{display:flex;align-items:center;min-height:44px;color:inherit;text-decoration:none;transition:color .2s}.ds-nav a:hover{color:var(--lime,#c5f16c)}.ds-nav a:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}@media(max-width:760px){.ds-nav{gap:20px;font-size:11px}.ds-nav a[href=\"#engineering\"]{display:none}}@media(prefers-reduced-motion:reduce){.ds-nav a{transition:none}}"
+                       },
+                       {
+                           "name":  "Project artwork",
+                           "kind":  "card",
+                           "refersTo":  "project-art",
+                           "description":  "Original geometric study linking to its case study.",
+                           "html":  "\u003ca class=\"ds-art\" href=\"#case-study\"\u003e\u003cspan\u003ePersonal portfolio\u003c/span\u003e\u003cstrong\u003eSystems.\u003cbr\u003eIn motion.\u003c/strong\u003e\u003cspan\u003eExplore the build\u003c/span\u003e\u003c/a\u003e",
+                           "css":  ".ds-art{font-family:Manrope,sans-serif;display:flex;flex-direction:column;justify-content:space-between;gap:32px;min-height:350px;padding:25px 36px;background:#1c2925;color:#e9ece6;text-decoration:none;overflow:hidden}.ds-art\u003espan{font-size:12px}.ds-art strong{font-size:clamp(37px,7vw,80px);line-height:1.1;letter-spacing:-.04em;font-weight:550}.ds-art:hover strong{color:var(--lime,#c5f16c)}.ds-art:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}"
+                       },
+                       {
+                           "name":  "Circular email action",
+                           "kind":  "button",
+                           "refersTo":  "contact-action",
+                           "description":  "Outlined circle and diagonal SVG arrow.",
+                           "html":  "\u003ca class=\"ds-contact\" href=\"#contact\" aria-label=\"Write an email\"\u003e\u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
+                           "css":  ".ds-contact{display:grid;place-items:center;width:125px;height:125px;border:1px solid #5e704d;border-radius:50%;color:var(--lime,#c5f16c);transition:transform .6s cubic-bezier(.16,1,.3,1),background .3s}.ds-contact svg{width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.ds-contact:hover{transform:rotate(45deg);background:#273521}.ds-contact:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}@media(max-width:760px){.ds-contact{width:55px;height:55px}.ds-contact svg{width:25px;height:25px}}@media(prefers-reduced-motion:reduce){.ds-contact{transition:none}.ds-contact:hover{transform:none}}"
+                       },
+                       {
+                           "name":  "Selected process stage",
+                           "kind":  "custom",
+                           "description":  "Lime marks the selected stage in a ruled process sequence.",
+                           "html":  "\u003cbutton class=\"ds-stage\" type=\"button\" role=\"tab\" aria-selected=\"true\"\u003eUnderstand\u003c/button\u003e",
+                           "css":  ".ds-stage{font:13px Manrope,sans-serif;border:0;border-right:1px solid var(--line,#303a35);padding:20px;background:var(--lime,#c5f16c);color:#18230f;cursor:pointer}.ds-stage:hover{background:#dcffa1}.ds-stage:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}"
+                       }
+                   ],
+    "narrative":  {
+                      "northStar":  "Engineering after dark",
+                      "overview":  "A near-black editorial page presents engineering through large type, precise rules and a geometric line sculpture. The interface remains open and readable. Lime marks actions and selected states; muted green-gray supports longer explanations.\n\nThe approved dark, English-language redesign replaces the former orange-and-paper direction. The finished build uses a graphite green undertone rather than literal midnight blue. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.",
+                      "keyCharacteristics":  [
+                                                 "Oversized Manrope headlines with tight tracking.",
+                                                 "Open section layouts separated by fine rules.",
+                                                 "Sparse electric lime accents on graphite fields.",
+                                                 "Optional motion with direct keyboard alternatives."
+                                             ],
+                      "rules":  [
+                                    {
+                                        "name":  "The accent rule",
+                                        "body":  "Use lime for action and state; keep reading surfaces dark and text predominantly off-white.",
+                                        "section":  "colors"
+                                    },
+                                    {
+                                        "name":  "The shared voice rule",
+                                        "body":  "Separate hierarchy through size, spacing and weight while keeping Manrope across headings, controls and prose.",
+                                        "section":  "typography"
+                                    },
+                                    {
+                                        "name":  "The open layout rule",
+                                        "body":  "Use fine rules and unequal columns to organize information before introducing additional containers.",
+                                        "section":  "layout"
+                                    },
+                                    {
+                                        "name":  "The optional motion rule",
+                                        "body":  "Keep content and controls usable without animation; respect reduced motion and suspend decorative work when hidden.",
+                                        "section":  "components"
+                                    }
+                                ],
+                      "dos":  [
+                                  "Do preserve visible focus, the skip link and direct anchor navigation.",
+                                  "Do distinguish implemented functionality from illustrative architecture.",
+                                  "Do keep status feedback explicit when contact delivery is unavailable.",
+                                  "Do stack explanatory content and architecture controls on phones."
+                              ],
+                      "donts":  [
+                                    "Don\u0027t add unsupported projects, testimonials or proficiency percentages.",
+                                    "Don\u0027t make decorative graphics necessary for reading or navigation.",
+                                    "Don\u0027t apply the desktop cursor to touch or reduced-motion interfaces.",
+                                    "Don\u0027t restore the superseded orange palette or Russian interface copy."
+                                ]
+                  }
 }

@@ -1,41 +1,49 @@
-# Personal portfolio
+﻿# Atajan portfolio
 
-React + TypeScript + Vite. Russian copy, local fonts, interactive canvas, and a growing project archive.
+English developer portfolio built with React 19, TypeScript and Vite. Original Canvas graphics, one verified project case study, interactive architecture and technology explorers, and an optional Node 24 contact service.
 
-## Local development
+## Run locally
 
-Use Node.js 24 and npm. On PowerShell installations that block npm.ps1, use npm.cmd.
+Use Node 24 or newer.
 
 ```sh
 npm ci
-npm run dev
-```
-
-Keep the terminal running and open http://127.0.0.1:5173/portfolio/. Run these commands from the checkout that contains `package.json`. On Windows, replace `npm` with `npm.cmd` if PowerShell blocks `npm.ps1`.
-
-To check the app and preview the production build:
-
-```sh
 npm run check
-npm run preview
+npm start
 ```
 
-Open http://127.0.0.1:4173/portfolio/ for the production preview. The app runs under `/portfolio/` in both modes. `npm run check` runs ESLint, TypeScript, and the production build.
+Open http://localhost:3000 after the build. The default server binds to loopback and expects that exact browser origin. On PowerShell use `npm.cmd` if local script policy blocks `npm.ps1`.
 
-## Publish a project
+For frontend development run `npm run dev`. To test mail through the development proxy, start the Node service with `APP_ORIGIN=http://127.0.0.1:5173` in a local ignored `.env`; visit that same Vite origin. Never put SMTP values into a `VITE_` variable.
 
-Edit `src/content.ts`. The identity and contact settings live there too. Add a project record with a unique slug, factual title and description, year, category, technologies, and source URL. An optional live URL adds a second link. Use `preview: 'portfolio'` only for this portfolio; other projects receive a neutral title/technology preview. There are no sample client projects or fabricated case studies.
+## Checks
 
-## Review and deployment
+- `npm run lint`: ESLint with no warnings.
+- `npm run typecheck`: frontend and server TypeScript.
+- `npm test`: contact validation, delivery failure/success, abuse controls and static serving.
+- `npm run build`: root-domain production bundle and custom `404.html`.
+- `npm run test:browser`: real Chromium integration checks against a temporary local production server. Run `npx playwright install chromium` first on Linux/macOS. On Windows the script uses installed Chrome. Tests cover responsive overflow, project expansion, architecture, keyboard controls, contact failures, cursor, reduced motion, touch, 404, assets and axe WCAG A/AA rules.
 
-Do not merge or change the live site until review is complete. This branch leaves GitHub Pages settings untouched. CI validates pull requests; the deploy workflow runs on main pushes and supports manual reruns.
+CI runs all of these on pull requests and main pushes. The custom-domain Pages build uses `VITE_BASE_PATH=/` and `VITE_CONTACT_MODE=email`.
 
-After approval, **before merging**, change repository Settings → Pages → Build and deployment → Source to **GitHub Actions**. This retains the existing published site while preventing the legacy root-source builder from publishing the Vite source HTML at merge. Merge the reviewed pull request; **Deploy portfolio after review** runs automatically. Use its manual Actions trigger against main to retry if needed. The workflow builds `dist` and deploys that artifact. Do not run a root-source Pages build for the React code: the browser cannot execute TSX source. Changing the repository name also requires updating `base` in `vite.config.ts`.
+## Content and evidence
 
-No contact service, API key, analytics or remote font request is required. Email links open the visitor's email app; the clipboard control reports success or an actionable fallback.
+`src/content.ts` contains identity, source and technology data. `src/App.tsx` holds the case study. Add only facts supported by source or owner-provided material. See [project evidence](docs/project-evidence.md). Only this portfolio was verified. Taxi/OpenRide, UIBE Hub and VPN candidates are omitted pending access to their source.
 
-## Design and review
+The supplied `annlegion` GitHub profile returned 404 during the audit. The existing authenticated remote is `w01kn3w/portfolio`; it is retained as the source link. Confirm the intended account before changing remotes. `admin@atajan.org` was already in the repository; mailbox delivery is unverified.
 
-See `REBUILD.md` for requirements and direction, `DESIGN.md` for actual visual tokens, and `.impeccable/design.json` for the design sidecar. Local viewport evidence is stored in the ignored `.impeccable/review/` directory.
+## Contact
 
-Fonts are self-hosted under `assets/`; their license files remain beside them.
+On GitHub Pages the form creates a draft in the visitor's email app. The visitor reviews and sends it there. No API request or automatic delivery is claimed. Confirm that the configured mailbox receives mail.
+
+The optional API mode requires `server/index.ts` and configured SMTP. Copy `.env.example` to an ignored `.env` and configure the provider privately. Without mail configuration the API returns HTTP 503, and the UI reports that delivery is unavailable. No enquiry is stored. SMTP acceptance is not a guarantee of inbox delivery.
+
+## Publish and rollback
+
+The selected hosting is GitHub Pages at atajan.org. See [domain setup](docs/github-pages.md) for the owner DNS steps. Main pushes publish the static bundle automatically. Pages cannot run a Node server. The alternative VPS workflow stays disabled. See [deployment instructions](docs/deployment.md) for that optional future path and rollback.
+
+For a code rollback, revert the release commit on main and push after review. The VPS release script retains previous release directories and automatically restores the previous `current` symlink if activation fails; manual rollback commands are documented in the deployment guide.
+
+## Design and assets
+
+[DESIGN.md](DESIGN.md) records actual visual tokens. Manrope is self-hosted as WOFF2, converted from the existing licensed TTF; license text remains under `assets/`. Social artwork is an original SVG with a rendered PNG. Canvas and CSS graphics are original geometry, not screenshots of client products. Motion respects reduced-motion, hidden-document and offscreen states.

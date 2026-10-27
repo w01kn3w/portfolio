@@ -1,32 +1,24 @@
 export const profile = {
   name: "Atajan",
   email: "admin@atajan.org",
-  github: "https://github.com/w01kn3w",
+  github: "https://github.com/annlegion",
+  source: "https://github.com/w01kn3w/portfolio",
 };
 
-export interface Project {
-  slug: string;
-  title: string;
-  description: string;
-  year: string;
-  category: string;
-  preview?: "portfolio";
-  technologies: readonly string[];
-  sourceUrl: string;
-  liveUrl?: string;
-}
-
-// Add only published work. The archive and navigation count update together.
-export const projects: readonly Project[] = [
+// Owner-configured address from the original repository. Delivery is unverified.
+export const technologies = [
   {
-    slug: "portfolio",
-    title: "Место для своих идей",
-    description:
-      "Этот сайт. Личное портфолио, интерактивная графика и открытый исходный код. Первая запись в коллекции, которая будет расти.",
-    year: "2026",
-    category: "Личный проект",
-    preview: "portfolio",
-    technologies: ["React", "TypeScript", "Canvas"],
-    sourceUrl: "https://github.com/w01kn3w/portfolio",
+    category: "Frontend",
+    items: ["React", "TypeScript", "HTML", "CSS", "Canvas 2D"],
   },
-];
+  { category: "Backend", items: ["Node.js", "HTTP", "SMTP integration"] },
+  { category: "Databases", items: ["No public implementation verified"] },
+  {
+    category: "Infrastructure",
+    items: ["Vite", "GitHub Actions", "GitHub Pages"],
+  },
+  {
+    category: "Tools & automation",
+    items: ["Git", "ESLint", "Node test runner"],
+  },
+] as const;
