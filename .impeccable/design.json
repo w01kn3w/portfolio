@@ -6,7 +6,7 @@
                        "colorMeta":  {
                                          "bg":  {
                                                     "role":  "neutral",
-                                                    "displayName":  "Graphite ground",
+                                                    "displayName":  "Warm off-white ground",
                                                     "tonalRamp":  [
                                                                       "oklch(15% 0.01 160)",
                                                                       "oklch(26% 0.01 160)",
@@ -20,7 +20,7 @@
                                                 },
                                          "panel":  {
                                                        "role":  "neutral",
-                                                       "displayName":  "Inset graphite",
+                                                       "displayName":  "White panel",
                                                        "tonalRamp":  [
                                                                          "oklch(15% 0.015 160)",
                                                                          "oklch(26% 0.015 160)",
@@ -34,7 +34,7 @@
                                                    },
                                          "text":  {
                                                       "role":  "neutral",
-                                                      "displayName":  "Cold off-white",
+                                                      "displayName":  "Green-black ink",
                                                       "tonalRamp":  [
                                                                         "oklch(15% 0.008 140)",
                                                                         "oklch(26% 0.008 140)",
@@ -118,7 +118,7 @@
                                                      },
                                          "artwork":  {
                                                          "role":  "neutral",
-                                                         "displayName":  "Artwork graphite",
+                                                         "displayName":  "Pale sage artwork",
                                                          "tonalRamp":  [
                                                                            "oklch(15% 0.025 160)",
                                                                            "oklch(26% 0.025 160)",
@@ -132,7 +132,7 @@
                                                      },
                                          "error":  {
                                                        "role":  "tertiary",
-                                                       "displayName":  "Warm error",
+                                                       "displayName":  "Deep red error",
                                                        "tonalRamp":  [
                                                                          "oklch(15% 0.08 45)",
                                                                          "oklch(26% 0.08 45)",
@@ -228,7 +228,7 @@
                            "refersTo":  "button-primary",
                            "description":  "Filled navigation and contact submission control.",
                            "html":  "\u003ca class=\"ds-primary\" href=\"#work\"\u003eExplore my work \u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
-                           "css":  ".ds-primary{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:55px;padding:17px 23px;border:0;border-radius:0;font-size:13px;font-weight:650;background:var(--lime,#c5f16c);color:#17200f;text-decoration:none;transition:background .25s}.ds-primary:hover{background:#dcffa1}.ds-primary:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
+                           "css":  ".ds-primary{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:55px;padding:17px 23px;border:0;border-radius:0;font-size:13px;font-weight:650;background:var(--lime,#c5f16c);color:#17200f;text-decoration:none;transition:background .25s}.ds-primary:hover{background:#b8e85a}.ds-primary:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
                        },
                        {
                            "name":  "Text action",
@@ -236,7 +236,7 @@
                            "refersTo":  "button-text",
                            "description":  "Open source and contact links.",
                            "html":  "\u003ca class=\"ds-text\" href=\"#contact\"\u003eLet\u0027s build something \u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
-                           "css":  ".ds-text{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:16px;min-height:44px;font-size:13px;color:#e9ece6;text-decoration:none}.ds-text:hover{color:var(--lime,#c5f16c)}.ds-text:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
+                           "css":  ".ds-text{font-family:Manrope,sans-serif;display:inline-flex;align-items:center;gap:16px;min-height:44px;font-size:13px;color:#17200f;text-decoration:none}.ds-text:hover{color:var(--accent,#3f6212)}.ds-text:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}.ds-primary svg,.ds-text svg,.ds-contact svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}"
                        },
                        {
                            "name":  "Contact field",
@@ -244,7 +244,7 @@
                            "refersTo":  "input",
                            "description":  "Persistent label and underlined transparent field.",
                            "html":  "\u003clabel class=\"ds-label\"\u003eYour name\u003cinput class=\"ds-field\" name=\"name\" placeholder=\"Alex Morgan\" autocomplete=\"name\" /\u003e\u003c/label\u003e",
-                           "css":  ".ds-label{font-family:Manrope,sans-serif;display:flex;flex-direction:column;gap:12px;font-size:12px;color:#e9ece6}.ds-field{font:13px Manrope,sans-serif;border:0;border-bottom:1px solid #53604f;background:none;color:#e9ece6;border-radius:0;min-width:0;padding:10px 0 16px;caret-color:var(--lime,#c5f16c)}.ds-field::placeholder{color:#99a59c;opacity:1}.ds-field:hover{border-bottom-color:var(--lime,#c5f16c)}.ds-field:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:4px}"
+                           "css":  ".ds-label{font-family:Manrope,sans-serif;display:flex;flex-direction:column;gap:12px;font-size:12px;color:#17200f}.ds-field{font:13px Manrope,sans-serif;border:0;border-bottom:1px solid #7d8778;background:none;color:#17200f;border-radius:0;min-width:0;padding:10px 0 16px;caret-color:var(--accent,#3f6212)}.ds-field::placeholder{color:#687262;opacity:1}.ds-field:hover{border-bottom-color:var(--accent,#3f6212)}.ds-field:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:4px}"
                        },
                        {
                            "name":  "Masthead navigation",
@@ -252,7 +252,7 @@
                            "refersTo":  "navigation",
                            "description":  "Text anchor navigation with lime hover.",
                            "html":  "\u003cnav class=\"ds-nav\" aria-label=\"Main navigation\"\u003e\u003ca href=\"#work\"\u003eWork\u003c/a\u003e\u003ca href=\"#engineering\"\u003eEngineering\u003c/a\u003e\u003ca href=\"#contact\"\u003eContact\u003c/a\u003e\u003c/nav\u003e",
-                           "css":  ".ds-nav{font-family:Manrope,sans-serif;display:flex;gap:38px;align-items:center;font-size:13px;color:#e9ece6}.ds-nav a{display:flex;align-items:center;min-height:44px;color:inherit;text-decoration:none;transition:color .2s}.ds-nav a:hover{color:var(--lime,#c5f16c)}.ds-nav a:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}@media(max-width:760px){.ds-nav{gap:20px;font-size:11px}.ds-nav a[href=\"#engineering\"]{display:none}}@media(prefers-reduced-motion:reduce){.ds-nav a{transition:none}}"
+                           "css":  ".ds-nav{font-family:Manrope,sans-serif;display:flex;gap:38px;align-items:center;font-size:13px;color:#17200f}.ds-nav a{display:flex;align-items:center;min-height:44px;color:inherit;text-decoration:none;transition:color .2s}.ds-nav a:hover{color:var(--accent,#3f6212)}.ds-nav a:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}@media(max-width:760px){.ds-nav{gap:20px;font-size:11px}.ds-nav a[href=\"#engineering\"]{display:none}}@media(prefers-reduced-motion:reduce){.ds-nav a{transition:none}}"
                        },
                        {
                            "name":  "Project artwork",
@@ -260,7 +260,7 @@
                            "refersTo":  "project-art",
                            "description":  "Original geometric study linking to its case study.",
                            "html":  "\u003ca class=\"ds-art\" href=\"#case-study\"\u003e\u003cspan\u003ePersonal portfolio\u003c/span\u003e\u003cstrong\u003eSystems.\u003cbr\u003eIn motion.\u003c/strong\u003e\u003cspan\u003eExplore the build\u003c/span\u003e\u003c/a\u003e",
-                           "css":  ".ds-art{font-family:Manrope,sans-serif;display:flex;flex-direction:column;justify-content:space-between;gap:32px;min-height:350px;padding:25px 36px;background:#1c2925;color:#e9ece6;text-decoration:none;overflow:hidden}.ds-art\u003espan{font-size:12px}.ds-art strong{font-size:clamp(37px,7vw,80px);line-height:1.1;letter-spacing:-.04em;font-weight:550}.ds-art:hover strong{color:var(--lime,#c5f16c)}.ds-art:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}"
+                           "css":  ".ds-art{font-family:Manrope,sans-serif;display:flex;flex-direction:column;justify-content:space-between;gap:32px;min-height:350px;padding:25px 36px;background:#edf0e4;color:#17200f;text-decoration:none;overflow:hidden}.ds-art\u003espan{font-size:12px}.ds-art strong{font-size:clamp(37px,7vw,80px);line-height:1.1;letter-spacing:-.04em;font-weight:550}.ds-art:hover strong{color:var(--accent,#3f6212)}.ds-art:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}"
                        },
                        {
                            "name":  "Circular email action",
@@ -268,19 +268,19 @@
                            "refersTo":  "contact-action",
                            "description":  "Outlined circle and diagonal SVG arrow.",
                            "html":  "\u003ca class=\"ds-contact\" href=\"#contact\" aria-label=\"Write an email\"\u003e\u003csvg viewBox=\"0 0 24 24\" aria-hidden=\"true\"\u003e\u003cpath d=\"M5 19 19 5M5 5h14v14\"/\u003e\u003c/svg\u003e\u003c/a\u003e",
-                           "css":  ".ds-contact{display:grid;place-items:center;width:125px;height:125px;border:1px solid #5e704d;border-radius:50%;color:var(--lime,#c5f16c);transition:transform .6s cubic-bezier(.16,1,.3,1),background .3s}.ds-contact svg{width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.ds-contact:hover{transform:rotate(45deg);background:#273521}.ds-contact:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}@media(max-width:760px){.ds-contact{width:55px;height:55px}.ds-contact svg{width:25px;height:25px}}@media(prefers-reduced-motion:reduce){.ds-contact{transition:none}.ds-contact:hover{transform:none}}"
+                           "css":  ".ds-contact{display:grid;place-items:center;width:125px;height:125px;border:1px solid #7d8778;border-radius:50%;color:var(--accent,#3f6212);transition:transform .6s cubic-bezier(.16,1,.3,1),background .3s}.ds-contact svg{width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.ds-contact:hover{transform:rotate(45deg);background:var(--lime,#c5f16c)}.ds-contact:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}@media(max-width:760px){.ds-contact{width:55px;height:55px}.ds-contact svg{width:25px;height:25px}}@media(prefers-reduced-motion:reduce){.ds-contact{transition:none}.ds-contact:hover{transform:none}}"
                        },
                        {
                            "name":  "Selected process stage",
                            "kind":  "custom",
                            "description":  "Lime marks the selected stage in a ruled process sequence.",
                            "html":  "\u003cbutton class=\"ds-stage\" type=\"button\" role=\"tab\" aria-selected=\"true\"\u003eUnderstand\u003c/button\u003e",
-                           "css":  ".ds-stage{font:13px Manrope,sans-serif;border:0;border-right:1px solid var(--line,#303a35);padding:20px;background:var(--lime,#c5f16c);color:#18230f;cursor:pointer}.ds-stage:hover{background:#dcffa1}.ds-stage:focus-visible{outline:2px solid var(--lime,#c5f16c);outline-offset:6px}"
+                           "css":  ".ds-stage{font:13px Manrope,sans-serif;border:0;border-right:1px solid var(--line,#dddcd0);padding:20px;background:var(--lime,#c5f16c);color:#17200f;cursor:pointer}.ds-stage:hover{background:#b8e85a}.ds-stage:focus-visible{outline:2px solid var(--accent,#3f6212);outline-offset:6px}"
                        }
                    ],
     "narrative":  {
-                      "northStar":  "Engineering after dark",
-                      "overview":  "A near-black editorial page presents engineering through large type, precise rules and a geometric line sculpture. The interface remains open and readable. Lime marks actions and selected states; muted green-gray supports longer explanations.\n\nThe approved dark, English-language redesign replaces the former orange-and-paper direction. The finished build uses a graphite green undertone rather than literal midnight blue. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.",
+                      "northStar":  "Engineering in daylight",
+                      "overview":  "A bright, warm off-white editorial page presents engineering through large type, precise hairline rules and a geometric line sculpture. The interface stays open, crisp and serious. Filled lime marks primary actions and selected states; deep lime-green carries accent text and thin strokes; muted green-gray supports longer explanations.\n\nOn 2026-11-06 the owner asked for a brighter design; the light theme replaces the earlier dark palette while keeping layout, typography and English copy. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.",
                       "keyCharacteristics":  [
                                                  "Oversized Manrope headlines with tight tracking.",
                                                  "Open section layouts separated by fine rules.",
@@ -290,7 +290,7 @@
                       "rules":  [
                                     {
                                         "name":  "The accent rule",
-                                        "body":  "Use lime for action and state; keep reading surfaces dark and text predominantly off-white.",
+                                        "body":  "Fill with lime, write with the deep accent (#3f6212); keep reading surfaces light and text predominantly near-black.",
                                         "section":  "colors"
                                     },
                                     {

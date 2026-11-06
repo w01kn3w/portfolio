@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import Orbit from "./Orbit";
 import Cursor from "./Cursor";
+import { Logo } from "./Logo";
 import { profile, technologies } from "./content";
 
 const Architecture = lazy(() => import("./Architecture"));
@@ -442,9 +443,7 @@ export default function App() {
   if (isNotFound)
     return (
       <main className="not-found section-width">
-        <span className="wordmark">
-          Atajan<span>.</span>
-        </span>
+        <Logo />
         <p>404 / Page not found</p>
         <h1>
           A wrong turn.
@@ -464,9 +463,7 @@ export default function App() {
       </a>
       <div id="top" className="opening">
         <header className="site-header section-width">
-          <a href="#top" className="wordmark" aria-label="Atajan home">
-            Atajan<span>.</span>
-          </a>
+          <Logo as="a" />
           <nav aria-label="Main navigation">
             <a href="#work">Work</a>
             <a href="#engineering">Engineering</a>
@@ -557,7 +554,24 @@ export default function App() {
                 <br />
                 <em>Working software out.</em>
               </h2>
-              <div>
+              <figure className="about-portrait">
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`${import.meta.env.BASE_URL}atajan-portrait-480.webp 480w, ${import.meta.env.BASE_URL}atajan-portrait-878.webp 878w`}
+                    sizes="(max-width: 760px) min(calc(100vw - 56px), 348px), (max-width: 1100px) 254px, 324px"
+                  />
+                  <img
+                    src={`${import.meta.env.BASE_URL}atajan-portrait-878.jpg`}
+                    width={878}
+                    height={1098}
+                    loading="lazy"
+                    decoding="async"
+                    alt="Portrait of Atajan, freelance full-stack developer"
+                  />
+                </picture>
+              </figure>
+              <div className="about-copy">
                 <p className="large-copy">
                   I'm Atajan, a freelance full-stack developer focused on useful
                   digital products.
@@ -682,9 +696,7 @@ export default function App() {
           <Contact />
         </main>
         <footer className="site-footer section-width">
-          <a className="wordmark" href="#top">
-            Atajan<span>.</span>
-          </a>
+          <Logo as="a" />
           <span>Thoughtfully built. © {new Date().getFullYear()} Atajan.</span>
           <a href={profile.source} data-cursor="OPEN">
             GitHub <Arrow diagonal />
