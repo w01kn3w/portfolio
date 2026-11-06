@@ -1,17 +1,19 @@
 ---
 name: Atajan portfolio
-description: Dark editorial engineering portfolio with geometric interaction studies.
+description: Bright editorial engineering portfolio with lime accents and geometric interaction studies.
 colors:
-  bg: "#0b100f"
-  panel: "#111917"
-  text: "#e9ece6"
-  line: "#303a35"
-  muted: "#a4afa7"
+  bg: "#f6f5ef"
+  panel: "#ffffff"
+  text: "#17200f"
+  line: "#dddcd0"
+  muted: "#5b6657"
   lime: "#c5f16c"
-  lime-hover: "#dcffa1"
+  lime-hover: "#b8e85a"
+  accent: "#3f6212"
   on-lime: "#17200f"
-  artwork: "#1c2925"
-  error: "#ffc5ad"
+  artwork: "#edf0e4"
+  band: "#eef0e7"
+  error: "#b42318"
 typography:
   display:
     fontFamily: "Manrope, sans-serif"
@@ -68,7 +70,7 @@ components:
   project-art:
     backgroundColor: "{colors.artwork}"
   contact-action:
-    textColor: "{colors.lime}"
+    textColor: "{colors.accent}"
     rounded: "{rounded.circle}"
 ---
 
@@ -76,30 +78,30 @@ components:
 
 ## Overview
 
-**Creative North Star: "Engineering after dark"**
+**Creative North Star: "Engineering in daylight"**
 
-A near-black editorial page presents engineering through large type, precise rules and a geometric line sculpture. The interface remains open and readable. Lime marks actions and selected states; muted green-gray supports longer explanations.
+A bright, warm off-white editorial page presents engineering through large type, precise hairline rules and a geometric line sculpture. The interface stays open, crisp and serious. Filled lime marks primary actions and selected states; a deep lime-green carries accent text and thin strokes; muted green-gray supports longer explanations.
 
-The approved dark, English-language redesign replaces the former orange-and-paper direction. The finished build uses a graphite green undertone rather than literal midnight blue. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.
+On 2026-11-06 the owner asked for a brighter design. The light theme replaces the earlier "Engineering after dark" palette while keeping its layout, typography and English copy, and it matches the light lime logo badge. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.
 
 **Key Characteristics:**
 
 - Oversized Manrope headlines with tight tracking.
 - Open section layouts separated by fine rules.
-- Sparse electric lime accents on graphite fields.
+- Electric lime fills and deep-green accent text on light, airy fields.
 - Optional motion with direct keyboard alternatives.
 
 ## Colors
 
 ### Primary
 
-Electric lime identifies primary actions, emphasis, selected process stages and architecture nodes. Its lighter hover variant belongs to primary buttons. Dark on-lime text keeps those filled controls legible.
+Electric lime fills primary buttons, the selected process stage, the active architecture node, text selection and the skip link. Its slightly deeper hover variant belongs to primary buttons. Dark on-lime text keeps those filled controls legible (12.9:1). Lime is never used as text or as a thin line on the light ground, where it fails contrast; the deep lime-green accent token (6.5:1 on the background) takes over emphasis words, hover text, focus outlines, active labels, code and the cursor.
 
 ### Neutral
 
-The background and panel tokens form the dark field. Cold off-white carries main text, muted green-gray carries supporting copy, and the line token separates sections. The artwork field is a lighter green graphite. The warm error tone is reserved for failed contact feedback.
+The warm off-white background and white panel form the light field. Near-black green ink carries main text (15.4:1), muted green-gray carries supporting copy (5.5:1), and the hairline line token separates sections. The artwork field and engineering band are pale sage tints. The deep red error tone is reserved for failed contact feedback.
 
-**The accent rule.** Use lime for action and state; keep reading surfaces dark and text predominantly off-white.
+**The accent rule.** Fill with lime, write with the deep accent; keep reading surfaces light and text predominantly near-black.
 
 Cyan appears within the decorative sculpture, not as a second general-purpose interface accent. Violet is not an implemented token.
 
@@ -133,19 +135,19 @@ Buttons, inputs and content fields have square corners. Circles belong to the sc
 
 ### Buttons and links
 
-Primary buttons use the frontmatter fill, text and padding, with a 55px minimum height. Hover lightens the fill and moves the inline SVG arrow slightly. Text actions have a 44px minimum height and turn lime on hover. Keyboard focus uses a 2px lime outline with a 6px offset. Disabled submission controls become translucent and show the waiting cursor.
+Primary buttons use the frontmatter fill, text and padding, with a 55px minimum height. Hover deepens the fill slightly and moves the inline SVG arrow. Text actions have a 44px minimum height and turn accent green on hover. Keyboard focus uses a 2px accent-green outline with a 6px offset. Disabled submission controls become translucent and show the waiting cursor.
 
 ### Navigation
 
-The masthead uses 13px anchor links with 38px gaps and 44px minimum hit height. Hover changes text to lime. At the phone breakpoint, links use 11px type and 20px gaps. Keep meaningful anchor labels and a visible focus treatment.
+The masthead uses 13px anchor links with 38px gaps and 44px minimum hit height. Hover changes text to accent green. At the phone breakpoint, links use 11px type and 20px gaps. Keep meaningful anchor labels and a visible focus treatment.
 
 ### Project artwork and case study
 
-A full-width graphite artwork combines original CSS rings, a fading coordinate grid and oversized type. It links to the in-page case study with a VIEW cursor state. Hover rotates the rings and shifts the type. The native details element exposes the problem, implementation and verified stack; content stays accessible without animation.
+A full-width pale sage artwork combines original CSS rings, a fading coordinate grid and oversized type. It links to the in-page case study with a VIEW cursor state. Hover rotates the rings and shifts the type. The native details element exposes the problem, implementation and verified stack; content stays accessible without animation.
 
 ### Contact fields
 
-Inputs and textarea are transparent, square and underlined. Labels remain visible above fields. Focus retains a lime outline with a smaller 4px offset. Loading, delivery confirmation and error feedback appear in a reserved status area. Only a confirmed backend response produces success.
+Inputs and textarea are transparent, square and underlined. Labels remain visible above fields. Underlines use a 3:1 gray-green so the field boundary stays visible. Focus retains the accent outline with a smaller 4px offset. Loading, delivery confirmation and error feedback appear in a reserved status area. Only a confirmed backend response produces success.
 
 ### Architecture and process
 
@@ -175,4 +177,5 @@ The Canvas sculpture is decorative, pausable and pointer-responsive. It pauses w
 - Don't add unsupported projects, testimonials or proficiency percentages.
 - Don't make decorative graphics necessary for reading or navigation.
 - Don't apply the desktop cursor to touch or reduced-motion interfaces.
-- Don't restore the superseded orange palette or Russian interface copy.
+- Don't restore the superseded orange palette, the superseded dark palette or Russian interface copy.
+- Don't set lime as text or hairline color on the light ground; use the accent token.

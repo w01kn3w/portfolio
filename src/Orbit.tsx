@@ -20,9 +20,10 @@ export default function Orbit() {
       height = 0,
       frame = 0,
       phase = 0.55,
-      lastTime = 0,
-      lastDrawTime = 0;
+      lastTime = 0;
     let inView = true;
+    // Bounds are cached so pointermove never forces a synchronous layout.
+    let bounds: DOMRect | null = null;
     const pointer = { x: 0, y: 0, currentX: 0, currentY: 0 };
     // Cache unit geometry once; each frame only rotates and scales it.
     const rings = Array.from({ length: 38 }, (_, ring) => {
@@ -40,18 +41,18 @@ export default function Orbit() {
       if (!context) return;
       context.clearRect(0, 0, width, height);
       const radius = Math.min(width * 0.36, height * 0.36);
-      context.strokeStyle = "#8eb5a244";
+      context.strokeStyle = "#3f621226";
       context.lineWidth = 0.6;
+      context.beginPath();
       for (let line = 0; line < 7; line++) {
         const position = (line + 1) / 8;
-        context.beginPath();
         context.moveTo(width * position, height * 0.1);
         context.lineTo(width * position, height * 0.9);
         context.moveTo(width * 0.1, height * position);
         context.lineTo(width * 0.9, height * position);
-        context.stroke();
       }
-      context.strokeStyle = "#b4ddad";
+      context.stroke();
+      context.strokeStyle = "#5f8a2e";
       context.lineWidth = 0.75;
       const tilt = 0.48 + pointer.currentX * 0.3;
       const twist = phase + pointer.currentY * 0.3;
@@ -79,18 +80,16 @@ export default function Orbit() {
       const elapsed = lastTime ? Math.min(time - lastTime, 50) : 16;
       lastTime = time;
       phase += elapsed * 0.00009;
-      pointer.currentX += (pointer.x - pointer.currentX) * 0.035;
-      pointer.currentY += (pointer.y - pointer.currentY) * 0.035;
-      if (time - lastDrawTime >= 1000 / 30) {
-        draw();
-        lastDrawTime = time;
-      }
+      // Time-based easing keeps the tilt equally responsive at 60 Hz and 120 Hz.
+      const ease = 1 - Math.exp(-elapsed / 160);
+      pointer.currentX += (pointer.x - pointer.currentX) * ease;
+      pointer.currentY += (pointer.y - pointer.currentY) * ease;
+      draw();
       frame = requestAnimationFrame(tick);
     }
     function sync() {
       cancelAnimationFrame(frame);
       lastTime = 0;
-      lastDrawTime = 0;
       draw();
       if (!pausedRef.current && !motion.matches && !document.hidden && inView)
         frame = requestAnimationFrame(tick);
@@ -103,26 +102,32 @@ export default function Orbit() {
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      bounds = null;
       sync();
     });
     const intersection = new IntersectionObserver(([entry]) => {
       inView = entry.isIntersecting;
       sync();
     });
+    const onScroll = () => {
+      bounds = null;
+    };
     const onMove = (event: PointerEvent) => {
       if (!finePointer.matches) return;
-      const bounds = canvas.getBoundingClientRect();
+      bounds ??= canvas.getBoundingClientRect();
       pointer.x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
       pointer.y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
     };
     const onLeave = () => {
       pointer.x = 0;
       pointer.y = 0;
+      bounds = null;
     };
     resize.observe(canvas);
     intersection.observe(canvas);
-    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointermove", onMove, { passive: true });
     canvas.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", sync);
     motion.addEventListener("change", sync);
     return () => {
@@ -132,6 +137,7 @@ export default function Orbit() {
       intersection.disconnect();
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", sync);
       motion.removeEventListener("change", sync);
     };

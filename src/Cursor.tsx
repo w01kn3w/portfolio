@@ -1,79 +1,130 @@
 import { useEffect, useRef } from "react";
 
+type State = "hidden" | "text" | "idle" | "active";
+
 export default function Cursor() {
+  const root = useRef<HTMLDivElement>(null);
   const ring = useRef<HTMLDivElement>(null);
   const core = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const system = root.current,
+      ringElement = ring.current,
+      coreElement = core.current;
+    if (!system || !ringElement || !coreElement) return;
     const query = matchMedia(
-      "(pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference)",
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
     );
-    let frame = 0;
-    let x = -100,
-      y = -100,
-      currentX = -100,
-      currentY = -100;
+    const html = document.documentElement;
+    let frame = 0,
+      last = 0,
+      x = 0,
+      y = 0,
+      ringX = 0,
+      ringY = 0;
+    let state: State = "hidden",
+      kind: State = "idle";
+    let target: Element | null = null;
     let magnetic: HTMLElement | null = null;
+    let magnetBounds: DOMRect | null = null;
+    // Land on whole device pixels so the 1px ring and its label never blur.
+    const place = (element: HTMLElement, left: number, top: number) => {
+      const ratio = devicePixelRatio || 1;
+      element.style.transform = `translate3d(${Math.round(left * ratio) / ratio}px,${Math.round(top * ratio) / ratio}px,0)`;
+    };
+    const setState = (next: State) => {
+      if (next === state) return;
+      if (state === "hidden" || next === "hidden")
+        html.classList.toggle("custom-cursor", next !== "hidden");
+      state = next;
+      system.dataset.state = next;
+    };
     const resetMagnet = () => {
       if (magnetic) magnetic.style.translate = "";
       magnetic = null;
+      magnetBounds = null;
+    };
+    // The ring eases toward the pointer and the loop stops once it settles.
+    const tick = (time: number) => {
+      const elapsed = last ? Math.min(time - last, 64) : 16;
+      last = time;
+      const ease = 1 - Math.exp(-elapsed / 38);
+      ringX += (x - ringX) * ease;
+      ringY += (y - ringY) * ease;
+      if (Math.abs(x - ringX) < 0.15 && Math.abs(y - ringY) < 0.15) {
+        ringX = x;
+        ringY = y;
+        frame = 0;
+      } else frame = requestAnimationFrame(tick);
+      place(ringElement, ringX, ringY);
     };
     const move = (event: PointerEvent) => {
       if (!query.matches || event.pointerType === "touch") return;
       x = event.clientX;
       y = event.clientY;
-      if (core.current)
-        core.current.style.transform = `translate3d(${x}px,${y}px,0)`;
-      const target =
-        event.target instanceof Element
-          ? event.target.closest<HTMLElement>("a,button,summary,input,textarea")
+      place(coreElement, x, y);
+      if (event.target !== target) {
+        target = event.target instanceof Element ? event.target : null;
+        const interactive =
+          target?.closest<HTMLElement>("a,button,summary") ?? null;
+        kind = target?.closest("input,textarea,select")
+          ? "text"
+          : interactive
+            ? "active"
+            : "idle";
+        const label = interactive?.dataset.cursor ?? "";
+        if (ringElement.textContent !== label) ringElement.textContent = label;
+        const next = interactive?.matches("[data-magnetic]")
+          ? interactive
           : null;
-      if (ring.current) {
-        ring.current.dataset.active = String(!!target);
-        ring.current.dataset.visible = "true";
-        ring.current.textContent = target?.dataset.cursor ?? "";
+        if (next !== magnetic) {
+          resetMagnet();
+          magnetic = next;
+        }
       }
-      const next = target?.matches("[data-magnetic]") ? target : null;
-      if (next !== magnetic) resetMagnet();
-      magnetic = next;
+      if (state === "hidden") {
+        ringX = x;
+        ringY = y;
+        place(ringElement, x, y);
+      }
+      setState(kind);
       if (magnetic) {
-        const bounds = magnetic.getBoundingClientRect();
-        magnetic.style.translate = `${(x - bounds.left - bounds.width / 2) * 0.08}px ${(y - bounds.top - bounds.height / 2) * 0.12}px`;
+        magnetBounds ??= magnetic.getBoundingClientRect();
+        magnetic.style.translate = `${(x - magnetBounds.left - magnetBounds.width / 2) * 0.08}px ${(y - magnetBounds.top - magnetBounds.height / 2) * 0.12}px`;
+      }
+      if (!frame && (ringX !== x || ringY !== y)) {
+        last = 0;
+        frame = requestAnimationFrame(tick);
       }
     };
-    const tick = () => {
-      currentX += (x - currentX) * 0.18;
-      currentY += (y - currentY) * 0.18;
-      if (ring.current)
-        ring.current.style.transform = `translate3d(${currentX}px,${currentY}px,0)`;
-      frame = requestAnimationFrame(tick);
-    };
-    const sync = () => {
+    const hide = () => {
       cancelAnimationFrame(frame);
+      frame = 0;
+      target = null;
       resetMagnet();
-      if (ring.current) ring.current.dataset.visible = "false";
-      if (query.matches && !document.hidden)
-        frame = requestAnimationFrame(tick);
+      setState("hidden");
     };
-    const leave = () => {
-      if (ring.current) ring.current.dataset.visible = "false";
-      resetMagnet();
+    const scroll = () => {
+      magnetBounds = null;
+    };
+    const visibility = () => {
+      if (document.hidden) hide();
     };
     document.addEventListener("pointermove", move, { passive: true });
-    document.documentElement.addEventListener("pointerleave", leave);
-    document.addEventListener("visibilitychange", sync);
-    query.addEventListener("change", sync);
-    sync();
+    document.addEventListener("scroll", scroll, { passive: true });
+    html.addEventListener("pointerleave", hide);
+    document.addEventListener("visibilitychange", visibility);
+    query.addEventListener("change", hide);
     return () => {
-      cancelAnimationFrame(frame);
-      resetMagnet();
+      hide();
       document.removeEventListener("pointermove", move);
-      document.documentElement.removeEventListener("pointerleave", leave);
-      document.removeEventListener("visibilitychange", sync);
-      query.removeEventListener("change", sync);
+      document.removeEventListener("scroll", scroll);
+      html.removeEventListener("pointerleave", hide);
+      document.removeEventListener("visibilitychange", visibility);
+      query.removeEventListener("change", hide);
     };
   }, []);
   return (
-    <div className="cursor-system" aria-hidden="true">
+    <div className="cursor-system" ref={root} aria-hidden="true">
       <div className="cursor-core" ref={core} />
       <div className="cursor-ring" ref={ring} />
     </div>
