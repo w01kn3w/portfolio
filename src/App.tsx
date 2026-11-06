@@ -554,24 +554,7 @@ export default function App() {
                 <br />
                 <em>Working software out.</em>
               </h2>
-              <figure className="about-portrait">
-                <picture>
-                  <source
-                    type="image/webp"
-                    srcSet={`${import.meta.env.BASE_URL}atajan-portrait-480.webp 480w, ${import.meta.env.BASE_URL}atajan-portrait-878.webp 878w`}
-                    sizes="(max-width: 760px) min(calc(100vw - 56px), 348px), (max-width: 1100px) 254px, 324px"
-                  />
-                  <img
-                    src={`${import.meta.env.BASE_URL}atajan-portrait-878.jpg`}
-                    width={878}
-                    height={1098}
-                    loading="lazy"
-                    decoding="async"
-                    alt="Portrait of Atajan, freelance full-stack developer"
-                  />
-                </picture>
-              </figure>
-              <div className="about-copy">
+              <div>
                 <p className="large-copy">
                   I'm Atajan, a freelance full-stack developer focused on useful
                   digital products.
