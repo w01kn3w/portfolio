@@ -46,13 +46,11 @@ jobs:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         shell: bash
         run: |
-          # Verify the published Pages artifact even before owner DNS is ready.
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --resolve atajan.org:80:185.199.108.153 http://atajan.org/ -o /tmp/atajan-page.html
+          # HTTPS is enforced, so http:// answers 301; verify the live HTTPS page
+          # and that plain HTTP redirects to it.
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 "$PAGE_URL" -o /tmp/atajan-page.html
           grep -q 'Atajan' /tmp/atajan-page.html
-          if getent ahostsv4 atajan.org | awk '{print $1}' | grep -Eq '^185\.199\.(108|109|110|111)\.153$'; then
-            if ! curl --fail --silent --show-error --retry 3 --retry-delay 5 "$PAGE_URL" > /dev/null; then
-              echo '::warning::The Pages artifact is published, but custom-domain HTTPS is not ready. Check certificate issuance in Settings > Pages.'
-            fi
-          else
-            echo '::warning::The Pages artifact is published. Owner DNS setup for atajan.org is still pending.'
+          location=$(curl --silent --show-error --retry 3 --retry-delay 5 -o /dev/null -w '%{redirect_url}' http://atajan.org/)
+          if [ "$location" != "https://atajan.org/" ]; then
+            echo "::warning::http://atajan.org/ does not redirect to HTTPS (got '$location'). Check 'Enforce HTTPS' in Settings > Pages."
           fi

@@ -33,3 +33,7 @@ No registrar password, SSH credential, private key or GitHub token is needed in 
 ## Rollback
 
 Revert the relevant code commit on main and let Pages republish. Domain rollback is separate: restore the previously recorded DNS web records if the owner intentionally returns to earlier hosting, and update/remove the custom domain in Pages to match. Never change mail records for a site rollback.
+
+## HTTPS status (2026-11-07)
+
+The certificate had stalled with GitHub serving the `*.github.io` certificate. Removing and re-adding the custom domain through the Pages API (`cname=null`, then `cname=atajan.org`) re-triggered issuance. GitHub then issued a certificate for `atajan.org` and `www.atajan.org` (state `approved`, expires 2027-02-04) and Enforce HTTPS was enabled. `http://` and `www` now answer 301 to `https://atajan.org/`. GitHub renews the certificate automatically. If it stalls again, repeat the remove/re-add step and rerun `Enable custom domain HTTPS`.
