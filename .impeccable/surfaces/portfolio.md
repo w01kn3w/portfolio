@@ -1,13 +1,9 @@
 ﻿# Portfolio direction contract
 
-THESIS: Experience mode. The implementation is the artifact. A dark editorial canvas reveals a geometric sculpture, then the actual code and its boundaries.
+Mode: Persuade. Help a business owner understand the service, inspect real implementation evidence and start an inquiry.
 
-OWN-WORLD: Midnight graphite, cold off-white and electric lime. Self-hosted Manrope, oversized tight display, thin geometric linework. Cyan supports the spatial artwork only.
+The 2026-11-18 explicit owner brief pins a white/light-gray studio surface with refined blue accents. It supersedes the earlier lime theme and the concept-seed catalog roll. Self-hosted Manrope, the approved Origin symbol, quiet ruled service rows and one authored Canvas moment carry the identity. The original Orbit and geometric Architecture graphics are preserved and adapted.
 
-STORY: Identify Atajan's focus, explore one verified build, inspect the engineering, send a project enquiry or use email.
+The first viewport combines a restrained brand masthead, a concrete development proposition, two working actions and the original sculpture. The page moves through service scope, source-backed work, tools, process, studio introduction and contact. No metrics or customer proof are invented.
 
-FIRST VIEWPORT: A masthead sits above a large three-line statement. A line sculpture cuts into the right side without obscuring text. The action sits beneath the statement with supporting copy on the left.
-
-FORM: User-pinned experimental digital luxury overrides catalog worlds and concept assignment be433c2d. Code-led, no raster mockup. User explicitly delegated design decisions. The strongest artifact is the implemented geometric work itself.
-
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+Verification is bounded to one desktop/mobile batch, material fixes and one confirmation. A separate brand reviewer evaluates the captures; root coordinates final integration and audit.

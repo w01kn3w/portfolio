@@ -1,49 +1,42 @@
-﻿# Atajan portfolio
+﻿# Atajan Labs portfolio
 
-English developer portfolio built with React 19, TypeScript and Vite. Original Canvas graphics, one verified project case study, interactive architecture and technology explorers, and an optional Node 24 contact service.
+React 19, TypeScript and Vite frontend for the existing Atajan Labs platform. English/Russian content, original Canvas graphics, source-backed project case studies and an integrated project inquiry form.
 
-## Run locally
+## Local development
 
-Use Node 24 or newer.
+Use Node 24. On PowerShell, use npm.cmd if npm.ps1 is blocked.
 
 ```sh
 npm ci
 npm run check
+npm run test:browser
 npm start
 ```
 
-Open http://localhost:3000 after the build. The default server binds to loopback and expects that exact browser origin. On PowerShell use `npm.cmd` if local script policy blocks `npm.ps1`.
+The production server binds to loopback at localhost:3000 by default. For Vite development use npm run dev. The public CMS origin defaults to https://labs.atajan.org/api/v1 and is configurable with VITE_PORTFOLIO_API_URL. VITE_ADMIN_ORIGIN pins the preview message sender. These are public build settings; never put credentials in VITE_* variables.
 
-For frontend development run `npm run dev`. To test mail through the development proxy, start the Node service with `APP_ORIGIN=http://127.0.0.1:5173` in a local ignored `.env`; visit that same Vite origin. Never put SMTP values into a `VITE_` variable.
+The existing optional Node SMTP endpoint remains available for legacy integrations. It is separate from the new public inquiry form and returns503 when SMTP is absent. The portfolio form now uses the existing Railway backend, stores a CRM inquiry after successful validation and preserves email links as fallback. A timeout never claims delivery.
+
+## Content and architecture
+
+The existing administration at labs.atajan.org manages portfolio content. Public content includes only published snapshots. No extra administrator login or database is introduced. Exact retries preserve the same inquiry identifier; changing a failed inquiry creates a fresh identifier. Draft preview accepts only the configured administration origin and opener, with bounded image Blobs and no session token transport.
+
+A failed CMS read uses the explicit verified bundled snapshot from src/portfolio-data.ts. A successful empty publication is not merged with that snapshot. The portfolio case study is backed by this repository. No clients, testimonials, revenue or performance outcomes are invented. The current owner GitHub is w01kn3w; existing valid email, Instagram and phone contacts are preserved.
+
+All sections, project details, navigation, contacts, services, technologies, legal content and global design values use CMS fields. Section headings and footer copy use HOMEPAGE entries; see the [integration contract](docs/portfolio-integration.md). The original Orbit animation, pause/reduced-motion behavior, geometric Architecture exploration and optional SMTP service remain. The old cursor source is retained for rollback but no longer mounted.
 
 ## Checks
 
-- `npm run lint`: ESLint with no warnings.
-- `npm run typecheck`: frontend and server TypeScript.
-- `npm test`: contact validation, delivery failure/success, abuse controls and static serving.
-- `npm run build`: root-domain production bundle and custom `404.html`.
-- `npm run test:browser`: real Chromium integration checks against a temporary local production server. Run `npx playwright install chromium` first on Linux/macOS. On Windows the script uses installed Chrome. Tests cover responsive overflow, project expansion, architecture, keyboard controls, contact failures, cursor, reduced motion, touch, 404, assets and axe WCAG A/AA rules.
+npm run check runs ESLint, both TypeScript projects, seven Node tests and a production build. npm run test:browser runs real Chromium against an isolated production server, with mocked CMS and inquiry responses. It checks rendering, language persistence, navigation, projects, idempotent retries, empty/error states, preview isolation, responsive overflow, original animation controls, custom404 and axe WCAG A/AA rules. It creates local desktop/mobile evidence under ignored .impeccable/review/. No real inquiries or financial transactions are created by the suite.
 
-CI runs all of these on pull requests and main pushes. The custom-domain Pages build uses `VITE_BASE_PATH=/` and `VITE_CONTACT_MODE=email`.
+## Hosting and rollback
 
-## Content and evidence
+The selected portfolio host remains GitHub Pages at atajan.org. Only reviewed main pushes or an explicit main workflow dispatch can deploy. This feature branch has not been deployed. No DNS changes are required. The existing Railway backend must be upgraded separately after owner approval, with its documented backup and migration procedure.
 
-`src/content.ts` contains identity, source and technology data. `src/App.tsx` holds the case study. Add only facts supported by source or owner-provided material. See [project evidence](docs/project-evidence.md). Only this portfolio was verified. Taxi/OpenRide, UIBE Hub and VPN candidates are omitted pending access to their source.
+Vite emits static project/legal pages with canonical URLs, metadata, noscript content and a generated sitemap. By default these use the verified bundled snapshot. To refresh crawler metadata after publishing CMS edits, export the public document to an ignored local file and set PORTFOLIO_BUILD_CONTENT_FILE for the build. Runtime UI content updates through the public API; social previews need a new Pages build. The default CI build is deterministic and makes no privileged API requests.
 
-The supplied `annlegion` GitHub profile returned 404 during the audit. The existing authenticated remote is `w01kn3w/portfolio`; it is retained as the source link. Confirm the intended account before changing remotes. `admin@atajan.org` was already in the repository; mailbox delivery is unverified.
-
-## Contact
-
-The public contacts supplied by the owner are wolkannaberdiyew@gmail.com, Instagram @annaberdi_yev and phone +8613521004012. The Pages build uses email-draft contact mode; visitors review and send the draft in their own mail app.
-
-The optional API mode requires `server/index.ts` and configured SMTP. Copy `.env.example` to an ignored `.env` and configure the provider privately. Without mail configuration the API returns HTTP 503, and the UI reports that delivery is unavailable. No enquiry is stored. SMTP acceptance is not a guarantee of inbox delivery.
-
-## Publish and rollback
-
-The selected hosting is GitHub Pages at atajan.org. See [domain setup](docs/github-pages.md) for the owner DNS steps. Main pushes publish the static bundle automatically. Pages cannot run a Node server. The alternative VPS workflow stays disabled. See [deployment instructions](docs/deployment.md) for that optional future path and rollback.
-
-For a code rollback, revert the release commit on main and push after review. The VPS release script retains previous release directories and automatically restores the previous `current` symlink if activation fails; manual rollback commands are documented in the deployment guide.
+Rollback uses a reviewed revert of the feature release on main followed by the existing Pages workflow. Reverting the frontend does not delete portfolio content or existing business data. Never use a destructive database rollback. See [portfolio integration](docs/portfolio-integration.md) and the root platform deployment guide for backend rollout boundaries.
 
 ## Design and assets
 
-[DESIGN.md](DESIGN.md) records actual visual tokens. Manrope is self-hosted as WOFF2, converted from the existing licensed TTF; license text remains under `assets/`. Social artwork is an original SVG with a rendered PNG. Canvas and CSS graphics are original geometry, not screenshots of client products. Motion respects reduced-motion, hidden-document and offscreen states.
+[DESIGN.md](DESIGN.md) records the current white/gray/blue visual system. Manrope is self-hosted under its existing license. The approved Origin mark is reused from the platform. Technology SVGs are local Simple Icons CC0 assets with provenance in public/technology/LICENSE.txt. Social artwork is authored SVG geometry rendered to a 1200×630 PNG. Project graphics are original interaction compositions, not customer screenshots.

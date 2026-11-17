@@ -1,15 +1,162 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import type { FormEvent } from "react";
+﻿import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
 import Orbit from "./Orbit";
-import Cursor from "./Cursor";
 import { Logo } from "./Logo";
-import { profile, technologies } from "./content";
-
+import { fallbackDocument } from "./portfolio-data";
+import {
+  adminOrigin,
+  apiBase,
+  clearPreviewMedia,
+  setPreviewMedia,
+  loadPublished,
+  localize,
+  mediaUrl,
+  safeUrl,
+  validDocument,
+} from "./portfolio-api";
+import type {
+  PortfolioContent,
+  PortfolioDocument,
+  PortfolioPublicEntry,
+} from "./portfolio-types";
 const Architecture = lazy(() => import("./Architecture"));
-const emailDraftMode = import.meta.env.VITE_CONTACT_MODE === "email";
-const contactUnavailable = import.meta.env.VITE_CONTACT_MODE === "unavailable";
-class ContactError extends Error {}
-
+const technologyAliases: Record<string, string> = {
+  nodejs: "nodedotjs",
+  nextjs: "nextdotjs",
+};
+const techIcon = (value?: string) => technologyAliases[value || ""] || value;
+function documentLanguage(document:PortfolioDocument,selected:string|null):'en'|'ru'{
+  const settings=document.entries.find(entry=>entry.kind==='DESIGN'&&entry.content.active!==false)?.content;
+  const available=settings?.availableLanguages?.filter((language):language is 'en'|'ru'=>language==='en'||language==='ru')||['en','ru'];
+  const preferred=selected||settings?.defaultLanguage||'en';
+  return (available.find(language=>language===preferred)||available[0]||'en') as 'en'|'ru';
+}
+const words = {
+  en: {
+    services: "Services",
+    projects: "Projects",
+    about: "About",
+    contact: "Contact",
+    quote: "Get a quote",
+    menu: "Menu",
+    close: "Close menu",
+    all: "All projects",
+    details: "Explore project",
+    source: "View source",
+    live: "Visit website",
+    back: "Back to projects",
+    challenge: "The challenge",
+    solution: "The solution",
+    results: "Verified results",
+    stack: "The right tools for the task.",
+    stackDesc:
+      "A connected toolkit for interfaces, systems and infrastructure.",
+    servicesTitle: "Built around your next step.",
+    servicesDesc:
+      "From a first website to the systems behind your business. Choose the work you need, and we will define the right scope together.",
+    projectsTitle: "Work you can explore.",
+    projectsDesc:
+      "Real implementation. Open source evidence. No invented success stories.",
+    name: "Your name",
+    email: "Email address",
+    message: "What would you like to build?",
+    send: "Send inquiry",
+    sending: "Sending…",
+    sent: "Your inquiry has been saved. Thank you for sharing your project.",
+    failure:
+      "The server did not confirm your inquiry. Retry with the same form or send an email instead.",
+    emailFallback: "Send an email instead",
+    required: "All fields are required.",
+    empty: "Published projects will appear here.",
+    inquiryService: "Service of interest",
+    anyService: "Let’s discuss it",
+    draft: "Private draft preview. Changes are not published.",
+    previewWaiting:
+      "Waiting for the administration panel to send a preview. Open this page using Preview in Portfolio CMS.",
+    fallback:
+      "Content service is unavailable. Showing the verified site snapshot; use email if the inquiry form is unavailable.",
+    privacy: "Privacy",
+    terms: "Terms",
+    top: "Back to top",
+    notFound: "This page could not be found.",
+    home: "Return home",
+    from: "From",
+    days: "days",
+    quotePrice: "Scoped to your project",
+    contactHint: "Your details are used to respond to your inquiry.",
+    architecture: "One connected platform.",
+    footer: "Web development, backend engineering and automation.",
+    techNote: "Technology marks belong to their respective owners.",
+    newProject: "Start a project",
+    copy: "Copy email",
+    copied: "Email copied",
+    copyFailed: "Copy unavailable. Use the email link.",
+    unknown: "Project unavailable",
+    unknownDesc: "This project has not been published or no longer exists.",
+  },
+  ru: {
+    services: "Услуги",
+    projects: "Проекты",
+    about: "О нас",
+    contact: "Контакты",
+    quote: "Обсудить задачу",
+    menu: "Меню",
+    close: "Закрыть меню",
+    all: "Все проекты",
+    details: "Смотреть проект",
+    source: "Исходный код",
+    live: "Открыть сайт",
+    back: "К проектам",
+    challenge: "Задача",
+    solution: "Решение",
+    results: "Подтверждённые результаты",
+    stack: "Инструменты под вашу задачу.",
+    stackDesc:
+      "Единый набор технологий для интерфейсов, систем и инфраструктуры.",
+    servicesTitle: "Разработка для вашего следующего шага.",
+    servicesDesc:
+      "От первого сайта до внутренних систем бизнеса. Выберите направление, а мы вместе определим подходящий объём работы.",
+    projectsTitle: "Работа, которую можно изучить.",
+    projectsDesc:
+      "Реальная реализация. Открытые исходники. Без вымышленных историй успеха.",
+    name: "Ваше имя",
+    email: "Электронная почта",
+    message: "Что вы хотите создать?",
+    send: "Отправить заявку",
+    sending: "Отправляем…",
+    sent: "Заявка сохранена. Спасибо за рассказ о вашем проекте.",
+    failure:
+      "Сервер не подтвердил получение заявки. Повторите отправку с той же формой или напишите на почту.",
+    emailFallback: "Написать на почту",
+    required: "Все поля обязательны.",
+    empty: "Опубликованные проекты появятся здесь.",
+    inquiryService: "Интересующая услуга",
+    anyService: "Давайте обсудим",
+    draft: "Закрытый просмотр черновика. Изменения не опубликованы.",
+    previewWaiting:
+      "Ожидаем данные из панели управления. Откройте эту страницу кнопкой «Предпросмотр» в Portfolio CMS.",
+    fallback:
+      "Сервис контента недоступен. Показана проверенная версия сайта; если форма недоступна, напишите на почту.",
+    privacy: "Конфиденциальность",
+    terms: "Условия",
+    top: "Наверх",
+    notFound: "Эта страница не найдена.",
+    home: "На главную",
+    from: "От",
+    days: "дней",
+    quotePrice: "Стоимость после обсуждения",
+    contactHint: "Ваши данные используются для ответа на заявку.",
+    architecture: "Одна связанная платформа.",
+    footer: "Веб-разработка, серверные системы и автоматизация.",
+    techNote: "Товарные знаки технологий принадлежат их владельцам.",
+    newProject: "Начать проект",
+    copy: "Скопировать почту",
+    copied: "Почта скопирована",
+    copyFailed: "Не удалось скопировать. Воспользуйтесь ссылкой на почту.",
+    unknown: "Проект недоступен",
+    unknownDesc: "Проект ещё не опубликован или больше не существует.",
+  },
+};
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
     <svg className="arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -17,678 +164,1156 @@ export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
     </svg>
   );
 }
-
-function Contact() {
+function ServiceIcon({ name }: { name?: string }) {
+  const paths: Record<string, string> = {
+    window: "M3 5h18v14H3zM3 9h18M7 7h.1M10 7h.1",
+    server: "M4 3h16v7H4zM4 14h16v7H4zM7 6.5h.1M7 17.5h.1M11 6.5h6M11 17.5h6",
+    workflow: "M9 4h6v6H9zM2 16h6v6H2zM16 16h6v6h-6zM12 10v3M5 16v-3h14v3",
+    layers: "m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5",
+    code: "m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16",
+  };
+  return (
+    <svg
+      className="service-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+    >
+      <path d={paths[name || ""] || paths.code} />
+    </svg>
+  );
+}
+function Image({
+  id,
+  alt,
+  className = "",
+}: {
+  id?: string;
+  alt: string;
+  className?: string;
+}) {
+  return id ? (
+    <img
+      className={className}
+      src={mediaUrl(id)}
+      crossOrigin="anonymous"
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      width="1200"
+      height="800"
+    />
+  ) : null;
+}
+function Brand({ logoMediaId }: { logoMediaId?: string }) {
+  return logoMediaId ? (
+    <a className="wordmark" href="/#top" aria-label="Atajan Labs home">
+      <img
+        className="logo-mark"
+        src={mediaUrl(logoMediaId)}
+        crossOrigin="anonymous"
+        alt=""
+        width="44"
+        height="44"
+      />
+      <span>
+        Atajan <strong>Labs</strong>
+      </span>
+    </a>
+  ) : (
+    <Logo as="a" />
+  );
+}
+function ProjectGraphic() {
+  return (
+    <div className="project-graphic" aria-hidden="true">
+      <div className="graphic-window">
+        <div className="graphic-toolbar">
+          <i />
+          <i />
+          <i />
+          <span>atajan.org</span>
+        </div>
+        <div className="graphic-page">
+          <span>Atajan Labs</span>
+          <div className="graphic-headline">
+            Ideas into
+            <br />
+            working software.
+          </div>
+          <div className="graphic-orbit">
+            {Array.from({ length: 12 }, (_, i) => (
+              <i key={i} style={{ transform: `rotate(${i * 15}deg)` }} />
+            ))}
+          </div>
+          <div className="graphic-rule" />
+          <div className="graphic-columns">
+            <i />
+            <i />
+            <i />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function Contact({
+  content,
+  services,
+  locale,
+}: {
+  content: PortfolioContent;
+  services: PortfolioPublicEntry[];
+  locale: "en" | "ru";
+}) {
+  const t = words[locale];
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
-  const [feedback, setFeedback] = useState("");
   const [copy, setCopy] = useState("");
+  const submission = useRef(crypto.randomUUID());
+  const submittedPayload = useRef<string | null>(null);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (state === "sending") return;
     const form = event.currentTarget;
-    const fields = Object.fromEntries(new FormData(form));
-    if (emailDraftMode) {
-      if (fields.website) return;
-      const subject = encodeURIComponent(
-        `Project enquiry from ${String(fields.name).trim()}`,
-      );
-      const body = encodeURIComponent(
-        `Name: ${String(fields.name).trim()}\nReply to: ${String(fields.email).trim()}\n\n${String(fields.message).trim()}`,
-      );
-      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-      setFeedback(
-        "Complete sending in your email app. If no draft appears, use the email link.",
-      );
-      return;
-    }
+    const data = Object.fromEntries(new FormData(form));
+    const payload = {
+      name: String(data.name).trim(),
+      email: String(data.email).trim(),
+      message: String(data.message).trim(),
+      website: String(data.website || ""),
+      locale,
+      ...(data.serviceId ? { serviceId: data.serviceId } : {}),
+    };
+    const fingerprint = JSON.stringify(payload);
+    if (submittedPayload.current !== fingerprint)
+      submission.current = crypto.randomUUID();
+    submittedPayload.current = fingerprint;
     setState("sending");
-    setFeedback("");
     try {
-      const response = await fetch(`${import.meta.env.BASE_URL}api/contact`, {
+      const response = await fetch(`${apiBase}/portfolio/inquiries`, {
         method: "POST",
+        credentials: "omit",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fields),
+        body: JSON.stringify({ ...payload, submissionId: submission.current }),
         signal: AbortSignal.timeout(20000),
       });
-      if (!response.ok) {
-        if (response.status === 429)
-          throw new ContactError(
-            "Too many requests. Please wait before trying again.",
-          );
-        if (response.status === 400)
-          throw new ContactError(
-            "Please check your name, email and message, then try again.",
-          );
-        throw new ContactError(
-          "Message delivery is not available right now. Please use the email link.",
-        );
-      }
-      const result: { success?: boolean } = await response.json();
-      if (!result.success)
-        throw new ContactError(
-          "Delivery could not be confirmed. Please use the email link.",
-        );
+      if (!response.ok) throw new Error("Inquiry not confirmed");
+      const result = await response.json();
+      if (result?.success !== true) throw new Error("Inquiry not confirmed");
       setState("success");
-      setFeedback("Message sent. Thank you for sharing your project.");
       form.reset();
-    } catch (error) {
+      submission.current = crypto.randomUUID();
+      submittedPayload.current = null;
+    } catch {
       setState("error");
-      setFeedback(
-        error instanceof ContactError
-          ? error.message
-          : "The server did not confirm delivery. Please use the email link or try again later.",
-      );
     }
   }
-  if (contactUnavailable)
-    return (
-      <section
-        className="contact section-width"
-        id="contact"
-        aria-labelledby="contact-title"
-      >
-        <div className="contact-heading">
-          <h2 id="contact-title">
-            Have a problem
-            <br />
-            worth <em>solving?</em>
-          </h2>
-        </div>
-        <p className="contact-intro">Contact details are being set up.</p>
-        <p className="muted">
-          A direct way to get in touch will appear here soon.
-        </p>
-        <a className="text-link" href={profile.source}>
-          Explore the source <Arrow diagonal />
-        </a>
-      </section>
-    );
   return (
     <section
-      className="contact section-width"
+      className="section-width contact-section"
       id="contact"
       aria-labelledby="contact-title"
     >
-      <div className="contact-heading">
-        <h2 id="contact-title">
-          Have a problem
-          <br />
-          worth <em>solving?</em>
-        </h2>
-        <a
-          className="contact-orbit"
-          href={`mailto:${profile.email}`}
-          aria-label="Write an email"
-        >
-          <Arrow diagonal />
-        </a>
-      </div>
-      <div className="contact-layout">
-        <div>
-          <p className="contact-intro">
-            Let's turn your idea into a reliable digital product.
-          </p>
-          <p className="muted">
-            Tell me what you want to build, what needs fixing, and what a good
-            result looks like.
-          </p>
-          <a className="email" href={`mailto:${profile.email}`}>
-            {profile.email}
-          </a>
-          <div className="contact-socials">
-            <a
-              className="text-link"
-              href={profile.instagram}
-              data-cursor="OPEN"
-            >
-              Instagram · @{profile.instagramHandle} <Arrow diagonal />
+      <div className="contact-copy">
+        <h2 id="contact-title">{localize(content.title, locale)}</h2>
+        <p>{localize(content.description, locale)}</p>
+        <div className="contact-links">
+          {content.email && (
+            <a href={`mailto:${content.email}`}>
+              {content.email}
+              <Arrow diagonal />
             </a>
-            <a className="text-link" href={`tel:${profile.phone}`}>
-              Phone · {profile.phone} <Arrow diagonal />
+          )}
+          {content.telegramUrl && (
+            <a href={safeUrl(content.telegramUrl)}>
+              Telegram
+              <Arrow diagonal />
             </a>
-          </div>
+          )}
+          {content.githubProfileUrl && (
+            <a href={safeUrl(content.githubProfileUrl)}>
+              GitHub
+              <Arrow diagonal />
+            </a>
+          )}
+          {content.instagramUrl && (
+            <a href={safeUrl(content.instagramUrl)}>
+              Instagram
+              <Arrow diagonal />
+            </a>
+          )}
+          {content.phone && (
+            <a href={`tel:${content.phone.replace(/[^+\d]/g, "")}`}>
+              {content.phone}
+              <Arrow diagonal />
+            </a>
+          )}
+        </div>
+        {content.email && (
           <button
             className="text-button"
-            type="button"
             onClick={async () => {
               try {
-                await navigator.clipboard.writeText(profile.email);
-                setCopy("Email copied.");
+                await navigator.clipboard.writeText(content.email!);
+                setCopy(t.copied);
               } catch {
-                setCopy("Copy unavailable. Select the address above.");
+                setCopy(t.copyFailed);
               }
             }}
           >
-            Copy email <Arrow />
+            {t.copy}
           </button>
-          <span role="status" className="feedback">
-            {copy}
-          </span>
-          <p className="contact-note">
-            {emailDraftMode
-              ? "The form creates a draft in your email app. Review and send it there."
-              : "Email address provided in this repository. Message delivery requires server configuration."}
-          </p>
-        </div>
-        <form onSubmit={submit} className="contact-form">
-          <div className="form-row">
-            <label>
-              Your name
-              <input
-                name="name"
-                autoComplete="name"
-                required
-                minLength={2}
-                maxLength={100}
-                placeholder="Alex Morgan"
-              />
-            </label>
-            <label>
-              Email address
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                maxLength={254}
-                placeholder="alex@company.com"
-              />
-            </label>
-          </div>
-          <label>
-            What are you working on?
-            <textarea
-              name="message"
-              required
-              minLength={20}
-              maxLength={5000}
-              rows={3}
-              placeholder="A little about your project, timeline and the problem to solve…"
-            />
-          </label>
-          <div className="honeypot" aria-hidden="true">
-            <label>
-              Leave this field empty
-              <input name="website" tabIndex={-1} autoComplete="off" />
-            </label>
-          </div>
-          <div className="form-end">
-            <span>
-              {emailDraftMode
-                ? "Opens your email app. Nothing is sent automatically."
-                : "Only used to reply to your enquiry."}
-            </span>
-            <button
-              className="button primary"
-              disabled={state === "sending"}
-              type="submit"
-            >
-              {emailDraftMode
-                ? "Create email draft"
-                : state === "sending"
-                  ? "Sending…"
-                  : "Send enquiry"}
-              <Arrow diagonal />
-            </button>
-          </div>
-          <p className={`feedback ${state}`} role="status" aria-live="polite">
-            {feedback}
-          </p>
-        </form>
-      </div>
-    </section>
-  );
-}
-
-function CaseStudy() {
-  return (
-    <section
-      id="work"
-      className="work section-width"
-      aria-labelledby="work-title"
-    >
-      <div className="section-head">
-        <h2 id="work-title">
-          Built to be
-          <br />
-          <em>explored.</em>
-        </h2>
-        <p>
-          A closer look at the code.
-          <br />
-          One verified project, open for inspection.
+        )}
+        <p className="small-copy" role="status">
+          {copy}
         </p>
       </div>
-      <article className="project">
-        <a
-          href="#case-study"
-          className="project-art"
-          onClick={() => {
-            const details = document.getElementById("case-study");
-            if (details instanceof HTMLDetailsElement) details.open = true;
-          }}
-          data-cursor="VIEW"
-        >
-          <div className="art-top">
-            <span>ATAJAN / WEB EXPERIENCE</span>
-            <Arrow diagonal />
-          </div>
-          <div className="study-art">
-            <div className="study-axis" />
-            <div className="study-rings">
-              {Array.from({ length: 12 }, (_, i) => (
-                <i key={i} style={{ transform: `rotate(${i * 15}deg)` }} />
-              ))}
-            </div>
-            <div className="study-type">
-              Ideas.
-              <br />
-              <span>Engineered.</span>
-            </div>
-            <span className="art-coordinate">
-              INTERACTION STUDY / CANVAS 2D
-            </span>
-          </div>
-          <div className="art-bottom">
-            <span>Personal portfolio</span>
-            <span>
-              Explore the build <Arrow />
-            </span>
-          </div>
-        </a>
-        <div className="project-info">
-          <div>
-            <span className="project-kind">
-              Creative development / Personal project
-            </span>
-            <h3>Atajan. A digital workspace.</h3>
-            <p>
-              A lightweight, interactive portfolio that puts the implementation
-              in view. Expressive on the surface, deliberate underneath.
-            </p>
-          </div>
-          <a className="text-link" href={profile.source} data-cursor="OPEN">
-            Inspect the source <Arrow diagonal />
-          </a>
+      <form className="inquiry-form" onSubmit={submit}>
+        <p className="small-copy">{t.required}</p>
+        <label htmlFor="inquiry-name">
+          {t.name}
+          <input
+            id="inquiry-name"
+            name="name"
+            autoComplete="name"
+            required
+            minLength={2}
+            maxLength={120}
+          />
+        </label>
+        <label htmlFor="inquiry-email">
+          {t.email}
+          <input
+            id="inquiry-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            maxLength={254}
+          />
+        </label>
+        {services.some((s) => s.content.catalogServiceId) && (
+          <label htmlFor="inquiry-service">
+            {t.inquiryService}
+            <select id="inquiry-service" name="serviceId">
+              <option value="">{t.anyService}</option>
+              {services
+                .filter((s) => s.content.catalogServiceId)
+                .map((s) => (
+                  <option value={s.content.catalogServiceId} key={s.id}>
+                    {localize(s.content.title, locale)}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
+        <label htmlFor="inquiry-message">
+          {t.message}
+          <textarea
+            id="inquiry-message"
+            name="message"
+            required
+            minLength={10}
+            maxLength={6000}
+            rows={4}
+          />
+        </label>
+        <div className="honeypot" aria-hidden="true">
+          <label>
+            Website
+            <input name="website" tabIndex={-1} autoComplete="off" />
+          </label>
         </div>
-        <details className="case-details" id="case-study">
-          <summary>
-            Inside the build{" "}
-            <span>
-              Problem, architecture & decisions <Arrow />
-            </span>
-          </summary>
-          <div className="case-grid">
-            <div>
-              <h4>The problem</h4>
-              <p>
-                Present technical work without burying it behind animation or
-                unsupported claims. Keep the experience usable on a phone, with
-                a keyboard, and with motion turned off.
-              </p>
-              <h4>The approach</h4>
-              <p>
-                React components and typed content, with an optional Canvas
-                sculpture. The contact server is a separate Node process, so the
-                static experience does not depend on email infrastructure.
-              </p>
-            </div>
-            <div>
-              <h4>Implementation scope</h4>
-              <p>
-                Frontend, interaction design, contact API and deployment
-                configuration in this repository. No client work, commercial
-                outcomes or production backend experience is implied.
-              </p>
-              <h4>Engineering decisions</h4>
-              <ul>
-                <li>
-                  Canvas 2D instead of a WebGL runtime for the line sculpture.
-                </li>
-                <li>
-                  Animation pauses offscreen and when the document is hidden.
-                </li>
-                <li>
-                  Server validation, bounded requests and SMTP-only success.
-                </li>
-                <li>
-                  Static hosting supported; sending requires the Node service.
-                </li>
-              </ul>
-            </div>
-            <div className="case-stack">
-              <h4>Verified in source</h4>
-              <p>
-                React · TypeScript · Vite · CSS · Canvas · Node.js · GitHub
-                Actions
-              </p>
-              <a className="text-link" href={profile.source}>
-                Repository <Arrow diagonal />
-              </a>
-              <p className="muted">
-                Visual above is an original interaction study for this website.
-                No client screenshots or sample business metrics.
-              </p>
-            </div>
-          </div>
-        </details>
-      </article>
-      <p className="archive-note">
-        More work will join this archive when its source and scope can be
-        verified.
-      </p>
+        <div className="form-bottom">
+          <p className="small-copy">
+            {t.contactHint} <a href="/legal/privacy/">{t.privacy}</a>
+          </p>
+          <button
+            className="button primary"
+            type="submit"
+            disabled={state === "sending"}
+          >
+            {state === "sending" ? t.sending : t.send}
+            <Arrow />
+          </button>
+        </div>
+        <p
+          className={
+            state === "error" ? "form-feedback error" : "form-feedback"
+          }
+          role="status"
+          aria-live="polite"
+        >
+          {state === "success" ? t.sent : state === "error" ? t.failure : ""}
+        </p>
+        {content.email && (
+          <a className="text-link" href={`mailto:${content.email}`}>
+            {t.emailFallback}
+            <Arrow diagonal />
+          </a>
+        )}
+      </form>
     </section>
   );
 }
-
-const steps = [
-  [
-    "Understand",
-    "Start with the problem.",
-    "Define who needs it, what should change, and the constraints that matter.",
-  ],
-  [
-    "Architect",
-    "Make the boundaries clear.",
-    "Map responsibilities, data and integrations before adding complexity.",
-  ],
-  [
-    "Build",
-    "Work in useful increments.",
-    "Keep the implementation readable and the important decisions visible.",
-  ],
-  [
-    "Test",
-    "Check the real behaviour.",
-    "Exercise the critical flows, failure cases and devices people actually use.",
-  ],
-  [
-    "Deploy",
-    "Make release repeatable.",
-    "Validate the build, check the running service and keep a rollback path.",
-  ],
-] as const;
-
+function ProjectDetail({
+  entry,
+  entries,
+  locale,
+}: {
+  entry: PortfolioPublicEntry;
+  entries: PortfolioPublicEntry[];
+  locale: "en" | "ru";
+}) {
+  const c = entry.content,
+    t = words[locale];
+  return (
+    <main id="main" className="detail-page section-width" tabIndex={-1}>
+      <a className="text-link" href="/#projects">
+        {t.back}
+        <Arrow />
+      </a>
+      <h1>{localize(c.title, locale)}</h1>
+      <p className="detail-intro">{localize(c.description, locale)}</p>
+      {c.coverMediaId ? (
+        <Image
+          id={c.coverMediaId}
+          alt={localize(c.title, locale)}
+          className="detail-cover"
+        />
+      ) : (
+        <ProjectGraphic />
+      )}
+      <div className="detail-layout">
+        <aside>
+          <div className="tag-list">
+            {c.technologySlugs?.map((slug) => (
+              <span key={slug}>
+                {localize(
+                  entries.find(
+                    (x) => x.kind === "TECHNOLOGY" && x.slug === slug,
+                  )?.content.title,
+                  locale,
+                ) || slug}
+              </span>
+            ))}
+          </div>
+          {c.completionDate && (
+            <p>
+              {new Intl.DateTimeFormat(locale, {
+                year: "numeric",
+                month: "long",
+              }).format(new Date(c.completionDate))}
+            </p>
+          )}
+          <div className="detail-links">
+            {c.liveUrl && (
+              <a className="text-link" href={safeUrl(c.liveUrl)}>
+                {t.live}
+                <Arrow diagonal />
+              </a>
+            )}
+            {c.githubUrl && (
+              <a className="text-link" href={safeUrl(c.githubUrl)}>
+                {t.source}
+                <Arrow diagonal />
+              </a>
+            )}
+          </div>
+        </aside>
+        <div className="detail-body">
+          <p>{localize(c.body, locale)}</p>
+          {[
+            [t.challenge, c.challenge],
+            [t.solution, c.solution],
+            [t.results, c.results],
+          ].map(([label, value]) =>
+            value && typeof value !== "string" ? (
+              <section key={String(label)}>
+                <h2>{String(label)}</h2>
+                <p>{localize(value, locale)}</p>
+                {label === t.results && c.resultsEvidenceUrl && (
+                  <a href={safeUrl(c.resultsEvidenceUrl)}>
+                    {t.source}
+                    <Arrow diagonal />
+                  </a>
+                )}
+              </section>
+            ) : null,
+          )}
+        </div>
+      </div>
+      {c.galleryMediaIds?.map((id, index) => (
+        <Image
+          key={id}
+          id={id}
+          alt={`${localize(c.title, locale)} ${index + 1}`}
+          className="detail-cover"
+        />
+      ))}
+      <a className="button primary" href="/#contact">
+        {t.newProject}
+        <Arrow />
+      </a>
+    </main>
+  );
+}
 export default function App() {
-  const [step, setStep] = useState(0);
-  const [techGroup, setTechGroup] = useState<string | null>("Frontend");
+  const [doc, setDoc] = useState<PortfolioDocument>(fallbackDocument);
+  const [source, setSource] = useState<
+    "loading" | "live" | "fallback" | "preview"
+  >("loading");
+  const [locale, setLocale] = useState<"en" | "ru">(() =>
+    localStorage.getItem("atajan-language") === "ru" ? "ru" : "en",
+  );
+  const languageWasChosen=useRef(!!localStorage.getItem('atajan-language'));
+  const [hash, setHash] = useState(location.hash);
+  const [menu, setMenu] = useState(false);
+  const [category, setCategory] = useState("all");
+  const preview = new URLSearchParams(location.search).has("preview");
+  const t = words[locale];
   useEffect(() => {
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries)
-          if (entry.isIntersecting) {
-            if (!motion.matches)
-              entry.target.animate(
-                [
-                  { opacity: 0.5, transform: "translateY(22px)" },
-                  { opacity: 1, transform: "translateY(0)" },
-                ],
-                { duration: 650, easing: "cubic-bezier(.16,1,.3,1)" },
-              );
-            observer.unobserve(entry.target);
-          }
-      },
-      { threshold: 0.15 },
+    if (preview) {
+      const listener = (event: MessageEvent) => {
+        if (
+          event.origin !== adminOrigin ||
+          event.source !== window.opener ||
+          event.data?.type !== "atajan:portfolio-preview" ||
+          !validDocument(event.data.document)
+        )
+          return;
+        setPreviewMedia(event.data.media);
+        setLocale(documentLanguage(event.data.document,languageWasChosen.current?localStorage.getItem('atajan-language'):null));
+        setDoc(event.data.document);
+        setSource("preview");
+      };
+      window.addEventListener("message", listener);
+      window.opener?.postMessage(
+        { type: "atajan:portfolio-preview-ready" },
+        adminOrigin,
+      );
+      return () => {
+        window.removeEventListener("message", listener);
+        clearPreviewMedia();
+      };
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    void loadPublished(controller.signal)
+      .then((value) => {
+        setDoc(value);
+        setSource("live");
+        setLocale(documentLanguage(value,languageWasChosen.current?localStorage.getItem('atajan-language'):null));
+      })
+      .catch(() => setSource("fallback"));
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [preview]);
+  useEffect(() => {
+    const listener = () => {
+      setHash(location.hash);
+      setMenu(false);
+      if (location.hash.startsWith("#/")) window.scrollTo(0, 0);
+      else
+        requestAnimationFrame(() =>
+          document.getElementById(location.hash.slice(1))?.scrollIntoView(),
+        );
+    };
+    window.addEventListener("hashchange", listener);
+    return () => window.removeEventListener("hashchange", listener);
+  }, []);
+  const entries = doc.entries
+    .filter((e) => e.content.active !== false)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const first = (kind: string, slug?: string) =>
+    entries.find((e) => e.kind === kind && (!slug || e.slug === slug))?.content;
+  const home = first("HOMEPAGE", "home") || first("HOMEPAGE");
+  const design = first("DESIGN");
+  const availableLanguages=design?.availableLanguages?.filter(language=>language==='en'||language==='ru')||['en','ru'];
+  const seo = first("SEO");
+  const routeProjectSlug =
+    location.pathname.match(/^\/projects\/([a-z0-9-]+)\/?$/)?.[1] ||
+    (hash.startsWith("#/projects/") ? hash.slice(11) : null);
+  const project = routeProjectSlug
+    ? entries.find((e) => e.kind === "PROJECT" && e.slug === routeProjectSlug)
+    : undefined;
+  useEffect(() => {
+    const data = project?.content;
+    document.documentElement.setAttribute("lang", locale);
+    const canonical = project
+      ? "https://atajan.org/projects/" + project.slug + "/"
+      : location.pathname.startsWith("/legal/")
+        ? "https://atajan.org" + location.pathname
+        : "https://atajan.org/";
+    document
+      .querySelector('link[rel="canonical"]')
+      ?.setAttribute("href", canonical);
+    document
+      .querySelector('meta[property="og:url"]')
+      ?.setAttribute("content", canonical);
+    localStorage.setItem("atajan-language", locale);
+    document
+      .querySelector("title")
+      ?.replaceChildren(
+        document.createTextNode(
+          localize(
+            data?.seoTitle || data?.title || seo?.seoTitle || seo?.title,
+            locale,
+          ) || "Atajan Labs",
+        ),
+      );
+    const description = localize(
+      data?.seoDescription ||
+        data?.description ||
+        seo?.seoDescription ||
+        seo?.description,
+      locale,
     );
     document
-      .querySelectorAll(".project-art,.process")
-      .forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
-  const isNotFound =
-    window.location.pathname !== import.meta.env.BASE_URL &&
-    window.location.pathname !== `${import.meta.env.BASE_URL}index.html`;
-  if (isNotFound)
-    return (
-      <main className="not-found section-width">
-        <Logo />
-        <p>404 / Page not found</p>
-        <h1>
-          A wrong turn.
-          <br />
-          <em>A way back.</em>
-        </h1>
-        <a className="button primary" href={import.meta.env.BASE_URL}>
-          Back to the portfolio <Arrow />
-        </a>
-      </main>
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", description);
+    document
+      .querySelector('meta[property="og:title"]')
+      ?.setAttribute("content", document.title);
+    document
+      .querySelector('meta[property="og:description"]')
+      ?.setAttribute("content", description);
+    document
+      .querySelector('meta[property="og:image"]')
+      ?.setAttribute(
+        "content",
+        seo?.ogMediaId || design?.ogMediaId
+          ? mediaUrl((seo?.ogMediaId || design?.ogMediaId)!)
+          : "https://atajan.org/social-card.png",
+      );
+    document
+      .querySelector('link[rel="icon"]')
+      ?.setAttribute(
+        "href",
+        design?.faviconMediaId
+          ? mediaUrl(design.faviconMediaId)
+          : `${import.meta.env.BASE_URL}favicon.svg`,
+      );
+    if (design?.primaryColor && /^#[\da-f]{6}$/i.test(design.primaryColor))
+      document.documentElement.style.setProperty(
+        "--accent",
+        design.primaryColor,
+      );
+    if (
+      design?.backgroundColor &&
+      /^#[\da-f]{6}$/i.test(design.backgroundColor)
+    )
+      document.documentElement.style.setProperty(
+        "--bg",
+        design.backgroundColor,
+      );
+    if (design?.fontFamily)
+      document.documentElement.style.setProperty(
+        "--font",
+        design.fontFamily === "Manrope"
+          ? "Manrope, sans-serif"
+          : design.fontFamily === "Inter"
+            ? "Inter, sans-serif"
+            : "system-ui, sans-serif",
+      );
+  }, [locale, seo, design, project]);
+  const hero = first("HERO"),
+    services = entries.filter((e) => e.kind === "SERVICE"),
+    projects = entries.filter((e) => e.kind === "PROJECT"),
+    categories = entries.filter((e) => e.kind === "PROJECT_CATEGORY"),
+    contact = first("CONTACT"),
+    about = first("ABOUT"),
+    process = first("PROCESS"),
+    cta = first("HOMEPAGE", "final-cta");
+  const processItems =
+    process?.items ||
+    entries
+      .filter((e) => e.kind === "PROCESS")
+      .map((e) => ({
+        title: e.content.title,
+        description: e.content.description,
+      }));
+  const navigation = entries
+    .filter((e) => e.kind === "NAVIGATION")
+    .flatMap(
+      (e) =>
+        e.content.items?.map((item, index) => ({
+          id: `${e.id}-${index}`,
+          title: item.title,
+          url: item.url,
+        })) || [
+          {
+            id: e.id,
+            title: e.content.title,
+            url: e.content.url || e.content.buttonUrl,
+          },
+        ],
     );
+  const serviceIntro = first("HOMEPAGE", "services");
+  const projectIntro = first("HOMEPAGE", "projects");
+  const technologyIntro = first("HOMEPAGE", "technologies");
+  const footerContent = first("HOMEPAGE", "footer");
+  const headerContent = first("HOMEPAGE", "header");
+  const hasSocial = (url: string) =>
+    entries.some(
+      (entry) => entry.kind === "SOCIAL_LINK" && entry.content.url === url,
+    );
+  const defaultNavigation = [
+    ["services", t.services],
+    ["projects", t.projects],
+    ["about", t.about],
+    ["contact", t.contact],
+  ].filter(
+    ([id]) =>
+      !home?.disabledSections?.includes(id || "") &&
+      (id !== "services" || services.length > 0) &&
+      (id !== "about" || !!about) &&
+      (id !== "contact" || !!contact),
+  );
+  const sectionHeader = (title: string, description?: string) => (
+    <div className="section-heading">
+      <h2>{title}</h2>
+      {description && <p>{description}</p>}
+    </div>
+  );
+  const sections: Record<string, ReactNode> = {
+    hero: hero && (
+      <section
+        className="hero section-width"
+        id="hero"
+        aria-labelledby="hero-title"
+      >
+        <div className="hero-copy">
+          <h1 id="hero-title">{localize(hero.title, locale)}</h1>
+          <p>{localize(hero.description, locale)}</p>
+          <div className="hero-actions">
+            <a
+              className="button primary"
+              href={safeUrl(hero.buttonUrl, "#projects")}
+            >
+              {localize(hero.buttonLabel, locale) || t.projects}
+              <Arrow />
+            </a>
+            <a
+              className="button secondary"
+              href={safeUrl(hero.secondaryButtonUrl)}
+            >
+              {localize(hero.secondaryButtonLabel, locale) || t.newProject}
+              <Arrow diagonal />
+            </a>
+          </div>
+        </div>
+        <div className="hero-art">
+          {hero.imageMediaId ? (
+            <Image id={hero.imageMediaId} alt={localize(hero.title, locale)} />
+          ) : (
+            <Orbit locale={locale} />
+          )}
+          <div className="art-note">
+            <span>Atajan Labs</span>
+            <span>Web · Systems · Automation</span>
+          </div>
+        </div>
+      </section>
+    ),
+    services: services.length > 0 && (
+      <section
+        className="section-width section-block"
+        id="services"
+        aria-labelledby="services-title"
+      >
+        <div id="services-title">
+          {sectionHeader(
+            localize(serviceIntro?.title, locale) || t.servicesTitle,
+            localize(serviceIntro?.description, locale) || t.servicesDesc,
+          )}
+        </div>
+        <div className="services-grid">
+          {services.map((s) => (
+            <article className="service" key={s.id}>
+              <ServiceIcon name={s.content.icon} />
+              <div>
+                <h3>{localize(s.content.title, locale)}</h3>
+                <p>{localize(s.content.description, locale)}</p>
+                <Image
+                  id={s.content.imageMediaId}
+                  alt={localize(s.content.title, locale)}
+                  className="service-image"
+                />
+                <ul className="service-items">
+                  {s.content.items?.map((item, i) => (
+                    <li key={i}>{localize(item.title, locale)}</li>
+                  ))}
+                </ul>
+                <div className="service-bottom">
+                  <span>
+                    {s.content.startingPriceMinor !== undefined
+                      ? `${t.from} ${new Intl.NumberFormat(locale, { style: "currency", currency: s.content.priceCurrency || "USD", ...(s.content.priceCurrency === "XTR" ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {}) }).format(s.content.startingPriceMinor / (s.content.priceCurrency === "XTR" ? 1 : 100))}`
+                      : t.quotePrice}
+                    {s.content.estimatedDays
+                      ? ` · ${s.content.estimatedDays} ${t.days}`
+                      : ""}
+                  </span>
+                  <a
+                    href={safeUrl(s.content.buttonUrl)}
+                    aria-label={`${localize(s.content.buttonLabel, locale) || t.newProject}: ${localize(s.content.title, locale)}`}
+                  >
+                    <Arrow diagonal />
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ),
+    projects: (
+      <section
+        className="section-width section-block"
+        id="projects"
+        aria-labelledby="projects-title"
+      >
+        <div id="projects-title">
+          {sectionHeader(
+            localize(projectIntro?.title, locale) || t.projectsTitle,
+            localize(projectIntro?.description, locale) || t.projectsDesc,
+          )}
+        </div>
+        <div className="project-filters" aria-label={t.projects}>
+          <button
+            className={category === "all" ? "selected" : ""}
+            aria-pressed={category === "all"}
+            onClick={() => setCategory("all")}
+          >
+            {t.all}
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              className={category === c.slug ? "selected" : ""}
+              aria-pressed={category === c.slug}
+              onClick={() => setCategory(c.slug)}
+            >
+              {localize(c.content.title, locale)}
+            </button>
+          ))}
+        </div>
+        <div className="project-grid">
+          {projects
+            .filter(
+              (p) => category === "all" || p.content.categorySlug === category,
+            )
+            .map((p) => (
+              <article className="project" key={p.id}>
+                <a
+                  className="project-cover"
+                  href={`/projects/${encodeURIComponent(p.slug)}/`}
+                  aria-label={`${t.details}: ${localize(p.content.title, locale)}`}
+                >
+                  {p.content.coverMediaId ? (
+                    <Image
+                      id={p.content.coverMediaId}
+                      alt={localize(p.content.title, locale)}
+                    />
+                  ) : (
+                    <ProjectGraphic />
+                  )}
+                  <span className="project-open">
+                    <Arrow diagonal />
+                  </span>
+                </a>
+                <div className="project-description">
+                  <div>
+                    <h3>
+                      <a href={`/projects/${encodeURIComponent(p.slug)}/`}>
+                        {localize(p.content.title, locale)}
+                      </a>
+                    </h3>
+                    <p>{localize(p.content.description, locale)}</p>
+                    <div className="tag-list">
+                      {p.content.technologySlugs?.map((slug) => (
+                        <span key={slug}>
+                          {localize(
+                            entries.find(
+                              (x) => x.kind === "TECHNOLOGY" && x.slug === slug,
+                            )?.content.title,
+                            locale,
+                          ) || slug}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <a
+                    className="text-link"
+                    href={`/projects/${encodeURIComponent(p.slug)}/`}
+                  >
+                    {t.details}
+                    <Arrow diagonal />
+                  </a>
+                </div>
+              </article>
+            ))}
+        </div>
+        {projects.length === 0 && <p className="empty-state">{t.empty}</p>}
+      </section>
+    ),
+    technologies: entries.some((e) => e.kind === "TECHNOLOGY") && (
+      <section className="technology-section section-width" id="technologies">
+        {sectionHeader(
+          localize(technologyIntro?.title, locale) || t.stack,
+          localize(technologyIntro?.description, locale) || t.stackDesc,
+        )}
+        <div className="technology-list">
+          {entries
+            .filter((e) => e.kind === "TECHNOLOGY")
+            .map((e) => (
+              <div key={e.id}>
+                {[
+                  "typescript",
+                  "javascript",
+                  "nodedotjs",
+                  "react",
+                  "nextdotjs",
+                  "nestjs",
+                  "postgresql",
+                  "redis",
+                  "docker",
+                  "linux",
+                  "git",
+                ].includes(techIcon(e.content.icon) || "") && (
+                  <img
+                    src={`${import.meta.env.BASE_URL}technology/${techIcon(e.content.icon)}.svg`}
+                    alt=""
+                    width="30"
+                    height="30"
+                    loading="lazy"
+                  />
+                )}
+                <span>{localize(e.content.title, locale)}</span>
+              </div>
+            ))}
+        </div>
+        <p className="small-copy">{t.techNote}</p>
+      </section>
+    ),
+    process: process && (
+      <section
+        className="section-width section-block process-section"
+        id="process"
+      >
+        {sectionHeader(
+          localize(first("HOMEPAGE", "process")?.title, locale) ||
+            (process.items
+              ? localize(process.title, locale)
+              : locale === "ru"
+                ? "Понятный процесс на каждом этапе."
+                : "A clear process at every stage."),
+          localize(first("HOMEPAGE", "process")?.description, locale) ||
+            (process.items ? localize(process.description, locale) : ""),
+        )}
+        <ol className="process-list">
+          {processItems.map((item, i) => (
+            <li key={i}>
+              <span>{String(i + 1).padStart(2, "0")}</span>
+              <h3>{localize(item.title, locale)}</h3>
+              <p>{localize(item.description, locale)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ),
+    about: about && (
+      <section className="section-width section-block about-section" id="about">
+        <div>
+          <h2>{localize(about.title, locale)}</h2>
+          <p className="about-intro">{localize(about.description, locale)}</p>
+          <p>{localize(about.body, locale)}</p>
+          <Image id={about.imageMediaId} alt={localize(about.title, locale)} />
+        </div>
+        <div className="architecture-panel">
+          <h3>{t.architecture}</h3>
+          <Suspense fallback={<p>React · API · PostgreSQL</p>}>
+            <Architecture locale={locale} />
+          </Suspense>
+        </div>
+      </section>
+    ),
+    contact: contact && (
+      <Contact content={contact} services={services} locale={locale} />
+    ),
+    cta: cta && (
+      <section className="final-cta section-width">
+        <h2>{localize(cta.title, locale)}</h2>
+        <a className="button primary" href={safeUrl(cta.buttonUrl)}>
+          {localize(cta.buttonLabel, locale) || t.newProject}
+          <Arrow diagonal />
+        </a>
+      </section>
+    ),
+  };
+  const missingPath =
+    location.pathname !== "/" &&
+    location.pathname !== import.meta.env.BASE_URL &&
+    location.pathname !== "/index.html" &&
+    !/^\/(projects|legal)\/[a-z0-9-]+\/?$/.test(location.pathname);
+  const legalSlug =
+    location.pathname.match(/^\/legal\/([a-z0-9-]+)\/?$/)?.[1] ||
+    (hash.startsWith("#/legal/") ? hash.slice(8) : null);
+  const legal = legalSlug
+    ? entries.find((e) => e.kind === "LEGAL" && e.slug === legalSlug)
+    : undefined;
+  const unknown =
+    (!!routeProjectSlug && !project) ||
+    (!!legalSlug && !legal && !["privacy", "terms"].includes(legalSlug)) ||
+    (hash.startsWith("#/") && !project && !legalSlug) ||
+    missingPath;
   return (
     <>
-      <Cursor />
       <a className="skip-link" href="#main">
-        Skip to content
+        {locale === "ru" ? "К содержимому" : "Skip to content"}
       </a>
-      <div id="top" className="opening">
-        <header className="site-header section-width">
-          <Logo as="a" />
-          <nav aria-label="Main navigation">
-            <a href="#work">Work</a>
-            <a href="#engineering">Engineering</a>
-            <a href="#about">About</a>
-            <a className="nav-contact" href="#contact">
-              Let's talk <Arrow diagonal />
-            </a>
-          </nav>
-        </header>
-        <main id="main">
-          <section className="hero section-width" aria-labelledby="hero-title">
-            <div className="hero-topline">
-              <p>Freelance full-stack developer</p>
-              <span>Independent thinking. Practical engineering.</span>
-            </div>
-            <div className="hero-stage">
-              <h1 id="hero-title">
-                Engineering
-                <br />
-                <span>digital experiences</span>
-                <br />
-                <em>that work.</em>
-              </h1>
-              <Orbit />
-            </div>
-            <div className="hero-base">
-              <p>
-                Full-stack development, backend systems and automation
-                engineered for real-world impact.
-              </p>
-              <div className="hero-actions">
-                <a className="button primary" href="#work" data-magnetic>
-                  Explore my work <Arrow />
+      <header className="site-header section-width" id="top">
+        <Brand logoMediaId={design?.logoMediaId} />
+        <button
+          className="menu-toggle"
+          aria-expanded={menu}
+          aria-controls="primary-navigation"
+          onClick={() => setMenu(!menu)}
+        >
+          {menu ? t.close : t.menu}
+          <span aria-hidden="true">{menu ? "−" : "+"}</span>
+        </button>
+        <nav
+          id="primary-navigation"
+          onClick={() => setMenu(false)}
+          className={menu ? "primary-nav open" : "primary-nav"}
+          aria-label={
+            locale === "ru" ? "Основная навигация" : "Main navigation"
+          }
+        >
+          {navigation.length
+            ? navigation.map((n) => (
+                <a key={n.id} href={safeUrl(n.url, "#top")}>
+                  {localize(n.title, locale)}
                 </a>
-                <a className="text-link" href="#contact">
-                  Let's build something <Arrow diagonal />
+              ))
+            : defaultNavigation.map(([id, title]) => (
+                <a key={id} href={`/#${id}`}>
+                  {title}
                 </a>
-              </div>
-            </div>
-            <div className="hero-foot">
-              <span>Built with intention. Open to inspection.</span>
-              <a href="#work">
-                Scroll to explore <span className="scroll-line" />
-              </a>
-            </div>
-          </section>
-          <CaseStudy />
-          <section id="engineering" className="engineering">
-            <div className="section-width">
-              <div className="section-head">
-                <h2>
-                  Good interfaces.
-                  <br />
-                  <em>Solid foundations.</em>
-                </h2>
-                <p>
-                  The experience extends beyond the screen.
-                  <br />
-                  Data, integrations and failure states matter too.
-                </p>
-              </div>
-              <Suspense
-                fallback={
-                  <p className="loading" role="status">
-                    Loading the architecture explorer…
-                  </p>
-                }
-              >
-                <Architecture />
-              </Suspense>
-              <div className="engineering-note">
-                <span>Implemented here</span>
-                <p>
-                  A Node.js contact endpoint with input validation, request
-                  limits and server-side SMTP configuration. An unconfigured
-                  mail service returns an error, never a false confirmation.
-                </p>
-                <a className="text-link" href={profile.source}>
-                  Read the implementation <Arrow diagonal />
-                </a>
-              </div>
-            </div>
-          </section>
-          <section id="about" className="about section-width">
-            <div className="about-intro">
-              <h2>
-                Curiosity in.
-                <br />
-                <em>Working software out.</em>
-              </h2>
-              <div>
-                <p className="large-copy">
-                  I'm Atajan, a freelance full-stack developer focused on useful
-                  digital products.
-                </p>
-                <p>
-                  I work across interfaces, backend systems, API integrations
-                  and automation. My approach is practical: understand the
-                  problem, make the structure clear, and build something people
-                  can use.
-                </p>
-                <a className="text-link" href="#contact">
-                  Tell me about your project <Arrow diagonal />
-                </a>
-              </div>
-            </div>
-            <div className="process">
-              <div
-                className="process-tabs"
-                role="tablist"
-                aria-label="Development process"
-              >
-                {steps.map(([title], i) => (
-                  <button
-                    key={title}
-                    role="tab"
-                    id={`step-${i}`}
-                    aria-controls="step-panel"
-                    aria-selected={step === i}
-                    tabIndex={step === i ? 0 : -1}
-                    onClick={() => setStep(i)}
-                    onKeyDown={(event) => {
-                      const next =
-                        event.key === "ArrowRight"
-                          ? (i + 1) % steps.length
-                          : event.key === "ArrowLeft"
-                            ? (i + steps.length - 1) % steps.length
-                            : event.key === "Home"
-                              ? 0
-                              : event.key === "End"
-                                ? steps.length - 1
-                                : null;
-                      if (next !== null) {
-                        event.preventDefault();
-                        setStep(next);
-                        document.getElementById(`step-${next}`)?.focus();
-                      }
-                    }}
-                  >
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    {title}
-                    <Arrow />
-                  </button>
-                ))}
-              </div>
-              <div
-                className="process-description"
-                role="tabpanel"
-                id="step-panel"
-                aria-labelledby={`step-${step}`}
-                tabIndex={0}
-              >
-                <h3>{steps[step][1]}</h3>
-                <p>{steps[step][2]}</p>
-              </div>
-            </div>
-            <div className="stack">
-              <h3>
-                The tools behind
-                <br />
-                this experience.
-              </h3>
-              <div className="stack-map">
-                {technologies.map((group) => (
-                  <div className="stack-row" key={group.category}>
-                    <button
-                      type="button"
-                      aria-expanded={techGroup === group.category}
-                      aria-controls={`tech-${group.category.split(" ")[0]}`}
-                      onClick={() =>
-                        setTechGroup(
-                          techGroup === group.category ? null : group.category,
-                        )
-                      }
-                    >
-                      {group.category}
-                      <Arrow />
-                    </button>
-                    <p>
-                      {group.items.map((item) => (
-                        <span key={item}>{item}</span>
-                      ))}
-                    </p>
-                    {techGroup === group.category && (
-                      <div
-                        className="tech-evidence"
-                        id={`tech-${group.category.split(" ")[0]}`}
-                      >
-                        <p>
-                          {group.category === "Databases"
-                            ? "Database-backed projects will appear when their source can be verified."
-                            : group.category === "Backend"
-                              ? "Implemented in this repository's contact service. SMTP requires server configuration."
-                              : group.category === "Frontend"
-                                ? "Used for this interface, typed content and the pointer-responsive line sculpture."
-                                : group.category === "Infrastructure"
-                                  ? "Build and static deployment are configured in this repository. VPS publication requires owner access."
-                                  : "Used to version, check and test this build. Explore the source to inspect the configuration."}
-                        </p>
-                        <a className="text-link" href={profile.source}>
-                          Inspect the repository <Arrow diagonal />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <p className="stack-note">
-              Select a category to see how it is used in this build.
-            </p>
-          </section>
-          <Contact />
+              ))}
+        </nav>
+        <div className="header-actions">
+          <label className="language-control">
+            <span className="sr-only">
+              {locale === "ru" ? "Язык" : "Language"}
+            </span>
+            <select
+              aria-label={locale === "ru" ? "Язык" : "Language"}
+              value={locale}
+              onChange={(e) => {languageWasChosen.current=true;setLocale(e.target.value === "ru" ? "ru" : "en");}}
+            >
+              {(availableLanguages.length?availableLanguages:['en']).map(language=><option key={language} value={language}>{language.toUpperCase()}</option>)}
+            </select>
+          </label>
+          <a
+            className="button compact secondary"
+            href={safeUrl(headerContent?.buttonUrl)}
+          >
+            {localize(headerContent?.buttonLabel, locale) || t.quote}
+            <Arrow diagonal />
+          </a>
+        </div>
+      </header>
+      {preview && (
+        <div className="preview-notice" role="status">
+          {source === "preview" ? t.draft : t.previewWaiting}
+        </div>
+      )}
+      {unknown ? (
+        <main id="main" className="not-found section-width">
+          <h1>{t.notFound}</h1>
+          <a className="button primary" href="/">
+            {t.home}
+            <Arrow />
+          </a>
         </main>
-        <footer className="site-footer section-width">
-          <Logo as="a" />
-          <span>Thoughtfully built. © {new Date().getFullYear()} Atajan.</span>
-          <a href={profile.source} data-cursor="OPEN">
-            GitHub <Arrow diagonal />
+      ) : project ? (
+        <ProjectDetail entry={project} entries={entries} locale={locale} />
+      ) : legalSlug ? (
+        <main id="main" className="legal-page section-width">
+          <a className="text-link" href="/#top">
+            {t.home}
+            <Arrow />
           </a>
-          <a href="#top">
-            Back to top <Arrow />
-          </a>
-        </footer>
-      </div>
+          <h1>
+            {legal
+              ? localize(legal.content.title, locale)
+              : legalSlug === "privacy"
+                ? t.privacy
+                : t.terms}
+          </h1>
+          {legal ? (
+            <>
+              <p>{localize(legal.content.description, locale)}</p>
+              <p>{localize(legal.content.body, locale)}</p>
+            </>
+          ) : (
+            <p>
+              {locale === "en"
+                ? legalSlug === "privacy"
+                  ? "The inquiry form collects your name, email and project message so Atajan Labs can respond. Submissions are stored in the private administration system. Please do not include passwords, payment details or other secrets. Contact us by email to request access, correction or deletion."
+                  : "This website presents development services and project evidence. A project begins only after scope, pricing, delivery and support terms have been agreed separately. This website does not accept payments. No agreement or payment is created by submitting an inquiry."
+                : legalSlug === "privacy"
+                  ? "Форма собирает имя, электронную почту и описание проекта для ответа Atajan Labs. Заявки хранятся в закрытой панели управления. Не указывайте пароли, платёжные реквизиты и другие секреты. Для доступа, исправления или удаления данных напишите нам на почту."
+                  : "Сайт представляет услуги разработки и реальные проекты. Работа начинается после отдельного согласования объёма, стоимости, передачи и поддержки. Сайт не принимает платежи. Отправка заявки не создаёт договор или платёж."}
+            </p>
+          )}
+          {contact?.email && (
+            <a className="text-link" href={`mailto:${contact.email}`}>
+              {contact.email}
+              <Arrow diagonal />
+            </a>
+          )}
+        </main>
+      ) : (
+        <main id="main" tabIndex={-1}>
+          {entries.length === 0 && (
+            <section className="section-width section-block">
+              <h1>
+                {locale === "ru"
+                  ? "Готовим новые публикации."
+                  : "New work is being prepared."}
+              </h1>
+            </section>
+          )}
+          {(
+            home?.sectionOrder || [
+              "hero",
+              "services",
+              "projects",
+              "technologies",
+              "process",
+              "about",
+              "contact",
+              "cta",
+            ]
+          )
+            .filter(
+              (key, index, array) =>
+                array.indexOf(key) === index &&
+                !home?.disabledSections?.includes(key),
+            )
+            .map((key) => (
+              <div key={key}>{sections[key]}</div>
+            ))}
+          {entries.filter((e) => e.kind === "TESTIMONIAL").length > 0 && (
+            <section className="section-width testimonials">
+              {entries
+                .filter((e) => e.kind === "TESTIMONIAL")
+                .map((e) => (
+                  <blockquote key={e.id}>
+                    <p>
+                      {localize(
+                        e.content.body || e.content.description,
+                        locale,
+                      )}
+                    </p>
+                    <cite>{localize(e.content.title, locale)}</cite>
+                  </blockquote>
+                ))}
+            </section>
+          )}
+        </main>
+      )}
+      <footer className="site-footer section-width">
+        <div className="footer-top">
+          <div>
+            <Brand logoMediaId={design?.logoMediaId} />
+            <p>
+              {localize(
+                footerContent?.description || footerContent?.body,
+                locale,
+              ) || t.footer}
+            </p>
+          </div>
+          <nav
+            aria-label={
+              locale === "ru" ? "Навигация в подвале" : "Footer navigation"
+            }
+          >
+            {(
+              footerContent?.items ||
+              defaultNavigation.map(([id, title]) => ({
+                title: { en: title, ru: title },
+                url: `/#${id}`,
+              }))
+            ).map((item, index) => (
+              <a key={index} href={safeUrl(item.url)}>
+                {localize(item.title, locale)}
+              </a>
+            ))}
+            {services.length > 0 && (
+              <details className="footer-services">
+                <summary>
+                  {locale === "ru" ? "Направления работы" : "Service areas"}
+                </summary>
+                {services.map((service) => (
+                  <a key={service.id} href={safeUrl(service.content.buttonUrl)}>
+                    {localize(service.content.title, locale)}
+                  </a>
+                ))}
+              </details>
+            )}
+          </nav>
+          <div>
+            {entries
+              .filter((e) => e.kind === "SOCIAL_LINK")
+              .map((e) => (
+                <a key={e.id} href={safeUrl(e.content.url)}>
+                  {localize(e.content.title, locale)}
+                  <Arrow diagonal />
+                </a>
+              ))}
+            {contact?.email && !hasSocial(`mailto:${contact.email}`) && (
+              <a href={`mailto:${contact.email}`}>{contact.email}</a>
+            )}
+            {contact?.telegramUrl && !hasSocial(contact.telegramUrl) && (
+              <a href={safeUrl(contact.telegramUrl)}>
+                Telegram
+                <Arrow diagonal />
+              </a>
+            )}
+            {contact?.githubProfileUrl &&
+              !hasSocial(contact.githubProfileUrl) && (
+                <a href={safeUrl(contact.githubProfileUrl)}>
+                  GitHub
+                  <Arrow diagonal />
+                </a>
+              )}
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} Atajan Labs</span>
+          <div>
+            <a href="/legal/privacy/">{t.privacy}</a>
+            <a href="/legal/terms/">{t.terms}</a>
+            <a href="/#top">
+              {t.top}
+              <Arrow />
+            </a>
+          </div>
+        </div>
+        {source === "fallback" && (
+          <p className="content-fallback" role="status">
+            {t.fallback}
+          </p>
+        )}
+      </footer>
     </>
   );
 }

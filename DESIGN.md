@@ -1,181 +1,45 @@
----
-name: Atajan portfolio
-description: Bright editorial engineering portfolio with lime accents and geometric interaction studies.
+﻿---
+name: Atajan Labs
+mode: Persuade
 colors:
-  bg: "#f6f5ef"
-  panel: "#ffffff"
-  text: "#17200f"
-  line: "#dddcd0"
-  muted: "#5b6657"
-  lime: "#c5f16c"
-  lime-hover: "#b8e85a"
-  accent: "#3f6212"
-  on-lime: "#17200f"
-  artwork: "#edf0e4"
-  band: "#eef0e7"
-  error: "#b42318"
+  background: "#ffffff"
+  panel: "#f4f6f9"
+  ink: "#172237"
+  muted: "#566276"
+  line: "#dce2eb"
+  accent: "#175ad6"
+  accent-soft: "#eaf0fb"
 typography:
-  display:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "clamp(54px, 6.75vw, 102px)"
-    fontWeight: 500
-    lineHeight: 1.09
-    letterSpacing: "-0.045em"
-  headline:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "clamp(36px, 4.1vw, 62px)"
-    fontWeight: 500
-    lineHeight: 1.15
-    letterSpacing: "-0.04em"
-  title:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "27px"
-    fontWeight: 500
-    letterSpacing: "-0.04em"
-  body:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "13px"
-    lineHeight: 1.8
-  label:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "12px"
-  code:
-    fontFamily: "monospace"
-    fontSize: "12px"
-rounded:
-  square: "0"
-  circle: "50%"
+  family: "Manrope, Arial, sans-serif"
+  display: "clamp(42px, 4.4vw, 66px) / 1.12, weight 550, tracking -0.04em"
+  heading: "clamp(30px, 3.3vw, 48px) / 1.2, weight 550"
+  body: "14px / 1.8"
+  compact: "12px / 1.7"
 spacing:
-  phone-gutter: "22px"
-  tablet-gutter: "36px"
-  desktop-gutter: "64px"
-  section-gap: "105px"
+  desktop-gutter: 64px
+  tablet-gutter: 36px
+  mobile-gutter: 22px
+  section: 100px
+  mobile-section: 58px
 components:
-  button-primary:
-    backgroundColor: "{colors.lime}"
-    textColor: "{colors.on-lime}"
-    rounded: "{rounded.square}"
-    padding: "17px 23px"
-  button-primary-hover:
-    backgroundColor: "{colors.lime-hover}"
-  button-text:
-    textColor: "{colors.text}"
-    height: "44px"
-  input:
-    textColor: "{colors.text}"
-    rounded: "{rounded.square}"
-    padding: "10px 0 16px"
-  navigation:
-    textColor: "{colors.text}"
-  project-art:
-    backgroundColor: "{colors.artwork}"
-  contact-action:
-    textColor: "{colors.accent}"
-    rounded: "{rounded.circle}"
+  button-radius: 8px
+  media-radius: 12px
+  focus: "2px solid #175ad6, 5px offset"
+  motion: "cubic-bezier(.16,1,.3,1), disabled for reduced motion"
 ---
 
-# Design System: Atajan portfolio
+# Atajan Labs visual system
 
-## Overview
+The 2026-11-18 owner brief replaces the earlier lime editorial portfolio with a light technology studio identity. White reading surfaces, cool-gray media fields, dark-blue ink and restrained blue actions establish the system. The approved Origin symbol from the existing platform is the primary mark. The previous portrait remains removed.
 
-**Creative North Star: "Engineering in daylight"**
+The page helps a visitor inspect genuine work and describe a project. It combines a precise masthead, a compact statement and the existing interactive Canvas sculpture. Services use open ruled rows; projects get larger evidence surfaces. Process numbers describe a real sequence. The case study artwork is an original interface composition, never a fabricated customer screenshot.
 
-A bright, warm off-white editorial page presents engineering through large type, precise hairline rules and a geometric line sculpture. The interface stays open, crisp and serious. Filled lime marks primary actions and selected states; a deep lime-green carries accent text and thin strokes; muted green-gray supports longer explanations.
+Self-hosted variable Manrope remains the display and body face. Main descriptive copy is 14px; compact labels are subordinate. Headings use -0.035em tracking, with a -0.04em hero floor. Link arrows and service icons share outlined geometry. Technology marks are locally stored Simple Icons CC0 SVGs with source attribution and no endorsement claim.
 
-On 2026-11-06 the owner asked for a brighter design. The light theme replaces the earlier "Engineering after dark" palette while keeping its layout, typography and English copy, and it matches the light lime logo badge. Its signature artwork comes from Canvas 2D and CSS geometry, without borrowed project screenshots or a WebGL runtime.
+The CMS may change logo, favicon, approved hex colors, typography family, navigation and section order. Static defaults match these tokens. The header and footer share the same logo renderer. CMS media has explicit dimensions, lazy loading and descriptive alternative text; previews use bounded ephemeral Blob URLs instead of credentials in public requests.
 
-**Key Characteristics:**
+The original Canvas pause control, offscreen suspension and reduced-motion behavior are preserved. Pointer motion does not force layout. The custom cursor is retained in source for rollback but is no longer mounted; native pointers improve predictability. Architecture graphics remain authored SVG geometry with keyboard-operable layer controls.
 
-- Oversized Manrope headlines with tight tracking.
-- Open section layouts separated by fine rules.
-- Electric lime fills and deep-green accent text on light, airy fields.
-- Optional motion with direct keyboard alternatives.
+Responsive behavior is verified at 320, 390, 768 and 1440 CSS pixels. Mobile navigation has an explicit expanded state and closes on navigation. Input labels, status feedback, keyboard focus, skip navigation, semantic headings and WCAG contrast are acceptance requirements. Error messages never claim an unconfirmed inquiry was delivered.
 
-## Colors
-
-### Primary
-
-Electric lime fills primary buttons, the selected process stage, the active architecture node, text selection and the skip link. Its slightly deeper hover variant belongs to primary buttons. Dark on-lime text keeps those filled controls legible (12.9:1). Lime is never used as text or as a thin line on the light ground, where it fails contrast; the deep lime-green accent token (6.5:1 on the background) takes over emphasis words, hover text, focus outlines, active labels, code and the cursor.
-
-### Neutral
-
-The warm off-white background and white panel form the light field. Near-black green ink carries main text (15.4:1), muted green-gray carries supporting copy (5.5:1), and the hairline line token separates sections. The artwork field and engineering band are pale sage tints. The deep red error tone is reserved for failed contact feedback.
-
-**The accent rule.** Fill with lime, write with the deep accent; keep reading surfaces light and text predominantly near-black.
-
-Cyan appears within the decorative sculpture, not as a second general-purpose interface accent. Violet is not an implemented token.
-
-## Typography
-
-Display and body use self-hosted variable Manrope in WOFF2 format with a sans-serif fallback. The same font file is preloaded. Monospace is restricted to code and artwork coordinates. The font loads with `font-display: swap`.
-
-The frontmatter records the main hierarchy. Project titles use the title role; body paragraphs generally use 13px with generous leading. Hero support copy uses 14px. About and contact introductions use 21px. Technical metadata is smaller and subordinate to the reading text.
-
-The hero changes to 108px above 1600px. At 760px and below it uses `clamp(38px, 7.7vw, 58px)`. Section-specific contact and about headings retain their own responsive scales in `src/styles.css`.
-
-**The shared voice rule.** Separate hierarchy through size, spacing and weight while keeping Manrope across headings, controls and prose.
-
-## Layout
-
-The main container caps at 1512px and uses the three gutter tokens. Breakpoints are 1600px for the wide hero, 1100px for reduced gutters and tighter columns, and 760px for stacked content. The desktop masthead is 112px tall and becomes 84px on phones.
-
-Large section gaps and asymmetrical columns set the rhythm. A single large project artwork leads into descriptive text and an expandable case study. The engineering diagram uses five horizontal nodes, then a vertical sequence on phones. About, stack and contact columns become single-column layouts. The engineering navigation anchor is hidden on phones while the section remains in the page.
-
-**The open layout rule.** Use fine rules and unequal columns to organize information before introducing additional containers.
-
-## Elevation & Depth
-
-The system uses tonal fields, restrained radial artwork lighting, line grids and overlapping geometry. It has no box-shadow elevation vocabulary. The sculpture sits behind the hero text; project rings rotate within their clipped artwork area. Ordinary reading content remains flat.
-
-## Shapes
-
-Buttons, inputs and content fields have square corners. Circles belong to the sculpture, architecture symbols, cursor and email action. Borders are thin and muted. Artwork is clipped by its rectangular container; the circles inside it remain part of the composition.
-
-## Components
-
-### Buttons and links
-
-Primary buttons use the frontmatter fill, text and padding, with a 55px minimum height. Hover deepens the fill slightly and moves the inline SVG arrow. Text actions have a 44px minimum height and turn accent green on hover. Keyboard focus uses a 2px accent-green outline with a 6px offset. Disabled submission controls become translucent and show the waiting cursor.
-
-### Navigation
-
-The masthead uses 13px anchor links with 38px gaps and 44px minimum hit height. Hover changes text to accent green. At the phone breakpoint, links use 11px type and 20px gaps. Keep meaningful anchor labels and a visible focus treatment.
-
-### Project artwork and case study
-
-A full-width pale sage artwork combines original CSS rings, a fading coordinate grid and oversized type. It links to the in-page case study with a VIEW cursor state. Hover rotates the rings and shifts the type. The native details element exposes the problem, implementation and verified stack; content stays accessible without animation.
-
-### Contact fields
-
-Inputs and textarea are transparent, square and underlined. Labels remain visible above fields. Underlines use a 3:1 gray-green so the field boundary stays visible. Focus retains the accent outline with a smaller 4px offset. Loading, delivery confirmation and error feedback appear in a reserved status area. Only a confirmed backend response produces success.
-
-### Architecture and process
-
-Architecture layers are buttons with pressed state and a changing explanatory region. The database node is explicitly reference-only. Process controls select explanatory text, with lime filling the selected stage. Preserve keyboard state semantics and do not rely on color alone.
-
-### Technology map
-
-Technology categories are keyboard-operable buttons with `aria-expanded`. Opening a category reveals its source-evidence explanation and repository link. Preserve the explicit unverified database category instead of suggesting a database implementation or inventing proficiency scores.
-
-### Sculpture and cursor
-
-The Canvas sculpture is decorative, pausable and pointer-responsive. It pauses when hidden or outside the viewport. Reduced motion retains a still composition. The desktop cursor has a direct core and an eased outer ring; selected actions receive moderate magnetic translation. It is enabled only for fine pointers with hover and no reduced-motion preference. It never captures clicks.
-
-**The optional motion rule.** Keep content and controls usable without animation; respect reduced motion and suspend decorative work when hidden.
-
-## Do's and Don'ts
-
-### Do:
-
-- Do preserve visible focus, the skip link and direct anchor navigation.
-- Do distinguish implemented functionality from illustrative architecture.
-- Do keep status feedback explicit when contact delivery is unavailable.
-- Do stack explanatory content and architecture controls on phones.
-
-### Don't:
-
-- Don't add unsupported projects, testimonials or proficiency percentages.
-- Don't make decorative graphics necessary for reading or navigation.
-- Don't apply the desktop cursor to touch or reduced-motion interfaces.
-- Don't restore the superseded orange palette, the superseded dark palette or Russian interface copy.
-- Don't set lime as text or hairline color on the light ground; use the accent token.
+Open Graph uses public/social-card.svg as the source for the generated 1200×630 PNG. The source contains only brand typography and geometric linework. Build-generated project/legal pages include per-page metadata, canonical URLs and noscript content for crawlers. Runtime CMS publication refreshes the interface; crawler snapshots require a new Pages build.

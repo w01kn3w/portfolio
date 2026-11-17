@@ -15,6 +15,7 @@ interface Options {
   staticDirectory?: string;
   trustProxy?: boolean;
   maxRequests?: number;
+  portfolioApiUrl?: string;
 }
 const mime: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -35,9 +36,21 @@ const securityHeaders = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-Frame-Options": "DENY",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-  "Content-Security-Policy":
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
 };
+export function portfolioCsp(apiUrl = "https://labs.atajan.org/api/v1") {
+  const url = new URL(apiUrl);
+  const local = ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname);
+  if (
+    url.username ||
+    url.password ||
+    (url.protocol !== "https:" && !(local && url.protocol === "http:"))
+  ) {
+    throw new Error(
+      "Portfolio API must use HTTPS or a loopback development address",
+    );
+  }
+  return `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: ${url.origin}; font-src 'self'; connect-src 'self' ${url.origin}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`;
+}
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
@@ -119,6 +132,12 @@ export function createApp(options: Options) {
   // One process, fixed ten-minute windows. Use a shared limiter before scaling horizontally.
   const requests = new Map<string, { count: number; until: number }>();
   const server = createServer(async (req, res) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      portfolioCsp(
+        options.portfolioApiUrl || process.env.VITE_PORTFOLIO_API_URL,
+      ),
+    );
     for (const [key, value] of Object.entries(securityHeaders))
       res.setHeader(key, value);
     let path: string;
@@ -223,7 +242,7 @@ export function createApp(options: Options) {
     }
     try {
       const root = resolve(options.staticDirectory);
-      const file = resolve(
+      let file = resolve(
         root,
         "." + decodeURIComponent(path === "/" ? "/index.html" : path),
       );
@@ -231,7 +250,11 @@ export function createApp(options: Options) {
         json(res, 404, { error: "Not found." });
         return;
       }
-      const info = await stat(file);
+      let info = await stat(file);
+      if (info.isDirectory()) {
+        file = resolve(file, "index.html");
+        info = await stat(file);
+      }
       if (!info.isFile()) throw new Error("NOT_FILE");
       let data = await readFile(file);
       let encoding: string | undefined;
