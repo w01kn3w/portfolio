@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function Orbit() {
+export default function Orbit({ locale = "en" }: { locale?: "en" | "ru" }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
@@ -41,7 +41,7 @@ export default function Orbit() {
       if (!context) return;
       context.clearRect(0, 0, width, height);
       const radius = Math.min(width * 0.36, height * 0.36);
-      context.strokeStyle = "#3f621226";
+      context.strokeStyle = "#175ad626";
       context.lineWidth = 0.6;
       context.beginPath();
       for (let line = 0; line < 7; line++) {
@@ -52,7 +52,7 @@ export default function Orbit() {
         context.lineTo(width * 0.9, height * position);
       }
       context.stroke();
-      context.strokeStyle = "#5f8a2e";
+      context.strokeStyle = "#477bcc";
       context.lineWidth = 0.75;
       const tilt = 0.48 + pointer.currentX * 0.3;
       const twist = phase + pointer.currentY * 0.3;
@@ -146,13 +146,23 @@ export default function Orbit() {
     <div className="orbit">
       <canvas ref={canvasRef} aria-hidden="true" />
       <div className="orbit-caption">
-        <span>Canvas study / pointer responsive</span>
+        <span>
+          {locale === "ru"
+            ? "Геометрический этюд / реакция на курсор"
+            : "Canvas study / pointer responsive"}
+        </span>
         <button
           type="button"
           aria-pressed={paused}
           onClick={() => setPaused(!paused)}
         >
-          {paused ? "Play" : "Pause"}
+          {locale === "ru"
+            ? paused
+              ? "Продолжить"
+              : "Пауза"
+            : paused
+              ? "Play"
+              : "Pause"}
           <svg viewBox="0 0 16 16" aria-hidden="true">
             {paused ? <path d="m5 3 7 5-7 5Z" /> : <path d="M5 3v10M11 3v10" />}
           </svg>

@@ -1,109 +1,93 @@
-import { useState } from "react";
-
-const nodes = [
-  {
-    title: "Client",
-    detail:
-      "An accessible interface collects input and shows loading, success and failure states.",
-    code: "React · browser validation",
-  },
-  {
-    title: "API",
-    detail:
-      "A request boundary checks the origin, content type, body size and rate limits before accepting input.",
-    code: "POST /api/contact",
-  },
-  {
-    title: "Business logic",
-    detail:
-      "Validated contact details become a plain-text message. Delivery is confirmed only when the SMTP server accepts it.",
-    code: "Validation → mail delivery",
-  },
-  {
-    title: "Database",
-    detail:
-      "Optional persistence for a product that needs it. This portfolio does not store enquiries in a database.",
-    code: "Reference only · no database here",
-  },
-  {
-    title: "External services",
-    detail:
-      "SMTP credentials stay on the server. The interface receives a useful error when delivery is not configured.",
-    code: "SMTP · environment configuration",
-  },
-];
-export default function Architecture() {
-  const [selected, setSelected] = useState(1);
+﻿import { useState } from "react";
+const layers = {
+  en: [
+    [
+      "Interface",
+      "Accessible pages and forms present published content and collect project inquiries.",
+      "React · TypeScript",
+    ],
+    [
+      "API",
+      "The public content API exposes published snapshots. Administrative writes require the existing protected session.",
+      "NestJS · Validation · RBAC",
+    ],
+    [
+      "Data",
+      "Projects, drafts, revisions and inquiries live alongside the existing business records.",
+      "PostgreSQL · Prisma",
+    ],
+    [
+      "Operations",
+      "The existing administration panel manages the site, Telegram orders and customer conversations.",
+      "One backend · One administration",
+    ],
+  ],
+  ru: [
+    [
+      "Интерфейс",
+      "Доступные страницы и формы показывают опубликованный контент и принимают заявки.",
+      "React · TypeScript",
+    ],
+    [
+      "API",
+      "Публичный API возвращает опубликованные снимки. Изменения доступны только по защищённой сессии администратора.",
+      "NestJS · Валидация · Роли",
+    ],
+    [
+      "Данные",
+      "Проекты, черновики, версии и заявки хранятся вместе с существующими бизнес-данными.",
+      "PostgreSQL · Prisma",
+    ],
+    [
+      "Управление",
+      "Единая панель управляет сайтом, Telegram-заказами и общением с клиентами.",
+      "Один backend · Одна панель",
+    ],
+  ],
+};
+export default function Architecture({
+  locale = "en",
+}: {
+  locale?: "en" | "ru";
+}) {
+  const [selected, setSelected] = useState(0);
+  const nodes = layers[locale];
   return (
     <div className="architecture">
-      <div className="architecture-top">
-        <span>Reference architecture</span>
-        <span>Explore each layer</span>
-      </div>
-      <div className="architecture-flow" aria-label="Architecture layers">
+      <div
+        className="architecture-flow"
+        aria-label={locale === "ru" ? "Уровни платформы" : "Platform layers"}
+      >
         {nodes.map((node, i) => (
           <button
-            type="button"
-            key={node.title}
-            onClick={() => setSelected(i)}
+            key={node[0]}
             aria-pressed={selected === i}
+            onClick={() => setSelected(i)}
           >
             <span className="node-symbol" aria-hidden="true">
-              {i === 0 ? (
-                <svg viewBox="0 0 48 48">
-                  <rect x="7" y="9" width="34" height="25" rx="2" />
-                  <path d="M18 41h12M24 34v7M7 28h34" />
-                </svg>
-              ) : i === 3 ? (
-                <svg viewBox="0 0 48 48">
-                  <ellipse cx="24" cy="11" rx="15" ry="6" />
-                  <path d="M9 11v25c0 8 30 8 30 0V11M9 23c0 8 30 8 30 0" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 48 48">
-                  <path
-                    d={
-                      i === 1
+              <svg viewBox="0 0 48 48">
+                <path
+                  d={
+                    i === 0
+                      ? "M7 9h34v25H7zM18 41h12M24 34v7M7 28h34"
+                      : i === 1
                         ? "m18 13-11 11 11 11m12-22 11 11-11 11M27 8l-6 32"
                         : i === 2
-                          ? "m24 5 17 10v18L24 43 7 33V15ZM7 15l17 10 17-10M24 25v18"
+                          ? "M9 11c0-8 30-8 30 0s-30 8-30 0m0 0v25c0 8 30 8 30 0V11M9 23c0 8 30 8 30 0"
                           : "M24 8v14M8 38V25h32v13M24 25v13"
-                    }
-                  />
-                </svg>
-              )}
+                  }
+                />
+              </svg>
             </span>
-            <span>{node.title}</span>
-            <span className="node-dot" />
+            {node[0]}
           </button>
         ))}
       </div>
       <div className="architecture-detail" aria-live="polite">
-        <h3>{nodes[selected].title}</h3>
-        <p>{nodes[selected].detail}</p>
-        <code>{nodes[selected].code}</code>
+        <h4>{nodes[selected][0]}</h4>
+        <p>{nodes[selected][1]}</p>
+        <code>{nodes[selected][2]}</code>
       </div>
-      <details className="api-example">
-        <summary>
-          Try the implemented endpoint <span>Request / response</span>
-        </summary>
-        <div>
-          <pre>
-            <code>{`POST /api/contact\nContent-Type: application/json\n\n{\n  "name": "Your name",\n  "email": "you@example.com",\n  "message": "Tell me about your project and goals.",\n  "website": ""\n}`}</code>
-          </pre>
-          <div>
-            <h4>When mail is not configured</h4>
-            <p>
-              The endpoint returns HTTP 503. This is a real failure state, not a
-              sample success response.
-            </p>
-            <p>
-              Static GitHub Pages hosting cannot run this endpoint. The Node
-              service and SMTP settings are required for sending.
-            </p>
-          </div>
-        </div>
-      </details>
     </div>
   );
 }

@@ -1,29 +1,15 @@
-# Product
+﻿# Atajan Labs portfolio
 
-## Platform
+A React 19, TypeScript and Vite public portfolio for Atajan Labs at https://atajan.org. The owner requested a professional studio presentation of web development, backend engineering, automation, infrastructure and custom software.
 
-Responsive English-language web portfolio for Atajan, positioned as a freelance full-stack developer. The intended domain is https://atajan.org.
+The authoritative baseline is origin/main commit 65bff1d, also the successful GitHub Pages deployment inspected on 2026-11-18. Local main was thirteen commits older. The feature branch starts from that remote baseline, preserving untracked local agent documentation and the separate portfolio-react worktree.
 
-## Purpose
+Verified public contacts are wolkannaberdiyew@gmail.com, Instagram annaberdi_yev, phone +8613521004012 and the owner-supplied current GitHub w01kn3w. The existing Telegram service bot is @atajanlabs_bot. The obsolete unavailable annlegion profile is preserved only in prior source history, not presented as a current account.
 
-Help prospective international clients understand the developer's focus, inspect verified implementation work and start a project conversation. Full-stack development, backend systems, integrations and automation are positioning themes, not evidence of a particular employment level or commercial track record.
+The portfolio itself is the source-backed public case study. No client names, revenue, traffic, achievements or testimonials are invented. Service offerings describe available work, not past customer outcomes. Prices remain absent unless explicitly published by an administrator. XTR amounts are integer Stars; fiat minor units use cents.
 
-## Verified content
+The site consumes published content from the existing Railway backend at labs.atajan.org/api/v1/portfolio. Drafts and revisions remain in the existing administration panel. An authenticated administrator can preview drafts through a strict-origin opener message containing content and bounded image Blobs. No administrator cookie, secret or token is transported to the public app.
 
-This portfolio is the one project supported by the available source. Its case study describes its React frontend, original Canvas/CSS artwork, contact API and deployment configuration. No completed Taxi/OpenRide, UIBE Hub or VPN case studies were verified during this work. Do not infer production readiness from repository presence or invent clients, outcomes, users, revenue, years of experience or testimonials.
+An API failure uses a clearly disclosed verified bundled content snapshot. A successful empty publication stays empty. The inquiry form stores a CRM lead only after the backend confirms success. Exact retries preserve their submission identifier; edited retries receive a new identifier. Email links remain a working fallback. The original optional Node SMTP service and tests are preserved separately.
 
-The requested public profile https://github.com/annlegion returned HTTP 404 during verification and is not rendered as a working footer link. The checkout's source repository and authenticated GitHub account are associated with https://github.com/w01kn3w/portfolio and w01kn3w. These identities are not interchangeable. The footer links to the verified source repository. The owner-configured address `admin@atajan.org` exists in the original repository; successful delivery has not been verified. No Upwork or Kwork profile URL is confirmed.
-
-## Implemented stack
-
-React 19, TypeScript, Vite, CSS, Canvas 2D and self-hosted Manrope power the frontend. The optional server uses Node 24 native HTTP and Nodemailer for SMTP. GitHub Actions, GitHub Pages, Git, ESLint and the Node test runner are present in the repository. A dedicated VPS deployment workflow and Nginx/systemd examples are prepared but have not been applied to a server. No database is implemented. NestJS, Express, Docker and PostgreSQL are not verified experience claims in this product.
-
-## Capabilities
-
-The page contains an interactive hero, one portfolio case study, a labeled reference architecture with an implemented contact endpoint example, an interactive development process, a contact form, email copy action and source links. The technology map uses keyboard-operable category buttons with expanded state, source-evidence panels and repository links. Navigation, mobile layouts, reduced motion, pause controls, loading/error states and keyboard access are required parts of the experience. Project visuals are original interaction studies, not client screenshots.
-
-## Delivery boundaries
-
-The owner selected GitHub Pages in the current w01kn3w/portfolio repository with custom domain atajan.org. The Pages build uses root base and email-draft contact mode. Current owner-supplied public contacts are wolkannaberdiyew@gmail.com, Instagram @annaberdi_yev and phone +8613521004012. Visitors explicitly review and send the draft in their own mail app. Pages does not run the Node API. The optional Node service validates and rate-limits requests, checks origin and body size, and sends plain-text mail through environment-configured SMTP. It returns 503 when SMTP is absent and never fabricates delivery success. Requests are not stored in a database. The in-memory rate limiter covers a single process only.
-
-The approved visual direction is bright light editorial with lime accents and English copy, requested by the owner on 2026-11-06 ("make the portfolio design brighter"). It supersedes the earlier dark editorial theme, the orange-and-paper design and Russian copy. The user authorized publication, while actual remote access, identity ownership, successful GitHub Actions, SMTP delivery and HTTPS deployment must be reported according to observed results. Configuration files alone do not mean atajan.org is connected. Preserve existing production services and obtain the owner's approval for changes that risk downtime. See `docs/deployment.md` for setup and rollback.
+GitHub Pages remains the intended hosting platform. No DNS, production data, payment configuration or deployment is changed by this feature implementation. Project and legal pages are statically generated for crawlers at build time. Updated CMS content is read at runtime; refreshed crawler metadata needs a Pages rebuild from the current published export. See docs/portfolio-integration.md.

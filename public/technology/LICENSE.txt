@@ -1,0 +1,3 @@
+﻿Technology logo provenance
+
+The SVG logos in this directory are from Simple Icons v16.0.0, https://simpleicons.org/, distributed under CC0-1.0. Original files: https://cdn.jsdelivr.net/npm/simple-icons@16.0.0/icons/{slug}.svg. No logos were modified. Product names and trademarks remain the property of their respective owners. Simple Icons brand guidelines and associated trademark rules still apply. The logos identify technologies; they imply no endorsement.

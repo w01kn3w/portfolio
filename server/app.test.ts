@@ -4,7 +4,7 @@ import { once } from "node:events";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createApp, smtpSender, validateContact } from "./app.ts";
+import { createApp, smtpSender, validateContact, portfolioCsp } from "./app.ts";
 import type { ContactMessage } from "./app.ts";
 import { brotliCompressSync } from "node:zlib";
 
@@ -177,4 +177,18 @@ test("static content uses cache and security headers and unknown paths return 40
   } finally {
     await rm(directory, { recursive: true });
   }
+});
+
+test("portfolio CSP permits only its explicit API origin and local preview blobs", () => {
+  const policy = portfolioCsp();
+  assert.ok(policy.includes("connect-src 'self' https://labs.atajan.org"));
+  assert.ok(policy.includes("img-src 'self' blob: https://labs.atajan.org"));
+  assert.ok(!policy.includes("*"));
+  assert.throws(() => portfolioCsp("http://attacker.example/api"));
+  assert.throws(() => portfolioCsp("https://user:pass@labs.atajan.org"));
+  assert.ok(
+    portfolioCsp("http://127.0.0.1:3001/api/v1").includes(
+      "http://127.0.0.1:3001",
+    ),
+  );
 });
