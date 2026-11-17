@@ -30,4 +30,6 @@ For example, save GET https://labs.atajan.org/api/v1/portfolio/content to an ign
 
 ## Deployment status
 
+After the backend rollout and deliberate content publication, enable repository variable PORTFOLIO_CMS_ENABLED=true. The existing main-only Pages workflow then downloads only the unauthenticated public document and uses it as PORTFOLIO_BUILD_CONTENT_FILE. A failed export fails the build. The flag defaults off while the new backend is unavailable. Re-run the Pages workflow after content changes to refresh crawler/social snapshots; no admin credential is placed in GitHub or the frontend.
+
 These are prepared feature-branch changes. The previous production site remains authoritative until an approved rollout. Backend migration and content publication are separate operations. The owner must review legal text and published content, configure storage and payment secrets privately, and approve production schema changes. Existing payment flows remain on the shared backend; this frontend has no payment checkout.

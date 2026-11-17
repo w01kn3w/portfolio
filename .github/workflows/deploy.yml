@@ -22,11 +22,18 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Export published CMS content for crawler metadata
+        if: vars.PORTFOLIO_CMS_ENABLED == 'true'
+        shell: bash
+        run: |
+          mkdir -p .runtime
+          curl --fail --silent --show-error --retry 3 --max-time 30 https://labs.atajan.org/api/v1/portfolio/content -o .runtime/published-content.json
       - run: npm run check
         env:
           VITE_BASE_PATH: /
           VITE_PORTFOLIO_API_URL: https://labs.atajan.org/api/v1
           VITE_ADMIN_ORIGIN: https://labs.atajan.org
+          PORTFOLIO_BUILD_CONTENT_FILE: ${{ vars.PORTFOLIO_CMS_ENABLED == 'true' && '.runtime/published-content.json' || '' }}
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - uses: actions/upload-pages-artifact@v3
