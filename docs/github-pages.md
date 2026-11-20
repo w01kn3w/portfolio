@@ -1,6 +1,6 @@
 # GitHub Pages and atajan.org
 
-The owner selected GitHub Pages in w01kn3w/portfolio. Custom domain `atajan.org` is configured in repository Settings > Pages, and `public/CNAME` preserves the intended domain. The production build uses base `/` and email-draft contact mode. Main pushes run the checked Pages publication workflow. No VPS or GitHub deployment secrets are needed.
+The owner selected GitHub Pages in w01kn3w/portfolio. Custom domain `atajan.org` is configured in repository Settings > Pages, and `public/CNAME` preserves the intended domain. The production build uses base `/` and the existing CMS inquiry API, with email drafts as a fallback. Main pushes run the checked Pages publication workflow. No VPS or GitHub deployment secrets are needed.
 
 ## Owner DNS steps
 
@@ -24,7 +24,7 @@ Reference: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your
 
 ## Contact and required owner information
 
-Public contacts supplied by the owner are wolkannaberdiyew@gmail.com, https://www.instagram.com/annaberdi_yev/ and +8613521004012. Production uses email-draft mode. The static form does not send server-side mail; visitors review and send drafts in their own mail apps. admin@atajan.org remains uncreated and is not published.
+The contact section uses accessible icons for the verified email, WhatsApp, GitHub, Instagram and Telegram destinations. The phone number is not displayed. Production submits to the separate CMS inquiry API and confirms only acknowledged storage. Email recovery drafts must be reviewed and sent in the visitor's own mail app. admin@atajan.org remains uncreated and is not published.
 
 The owner has now entered the DNS records. Google public DNS confirms the four GitHub A values and the www CNAME. Local resolvers can retain the previous negative result until its TTL expires. The manually triggered `Enable custom domain HTTPS` workflow retries certificate readiness for up to ten minutes, enables HTTPS through the Pages API, and verifies the public HTTPS response. It fails explicitly if issuance remains pending; rerun it after GitHub finishes provisioning.
 

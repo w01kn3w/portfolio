@@ -1,6 +1,7 @@
 ﻿import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import Orbit from "./Orbit";
+import { ContactLinks } from "./ContactLinks";
 import { Logo } from "./Logo";
 import { fallbackDocument } from "./portfolio-data";
 import {
@@ -25,11 +26,21 @@ const technologyAliases: Record<string, string> = {
   nextjs: "nextdotjs",
 };
 const techIcon = (value?: string) => technologyAliases[value || ""] || value;
-function documentLanguage(document:PortfolioDocument,selected:string|null):'en'|'ru'{
-  const settings=document.entries.find(entry=>entry.kind==='DESIGN'&&entry.content.active!==false)?.content;
-  const available=settings?.availableLanguages?.filter((language):language is 'en'|'ru'=>language==='en'||language==='ru')||['en','ru'];
-  const preferred=selected||settings?.defaultLanguage||'en';
-  return (available.find(language=>language===preferred)||available[0]||'en') as 'en'|'ru';
+function documentLanguage(
+  document: PortfolioDocument,
+  selected: string | null,
+): "en" | "ru" {
+  const settings = document.entries.find(
+    (entry) => entry.kind === "DESIGN" && entry.content.active !== false,
+  )?.content;
+  const available = settings?.availableLanguages?.filter(
+    (language): language is "en" | "ru" =>
+      language === "en" || language === "ru",
+  ) || ["en", "ru"];
+  const preferred = selected || settings?.defaultLanguage || "en";
+  return (available.find((language) => language === preferred) ||
+    available[0] ||
+    "en") as "en" | "ru";
 }
 const words = {
   en: {
@@ -56,7 +67,7 @@ const words = {
       "From a first website to the systems behind your business. Choose the work you need, and we will define the right scope together.",
     projectsTitle: "Work you can explore.",
     projectsDesc:
-      "Real implementation. Open source evidence. No invented success stories.",
+      "Explore the implementation, technical choices and source behind the work.",
     name: "Your name",
     email: "Email address",
     message: "What would you like to build?",
@@ -74,7 +85,7 @@ const words = {
     previewWaiting:
       "Waiting for the administration panel to send a preview. Open this page using Preview in Portfolio CMS.",
     fallback:
-      "Content service is unavailable. Showing the verified site snapshot; use email if the inquiry form is unavailable.",
+      "You’re viewing a saved copy of this site. You can still reach me by email or WhatsApp.",
     privacy: "Privacy",
     terms: "Terms",
     top: "Back to top",
@@ -136,7 +147,7 @@ const words = {
     previewWaiting:
       "Ожидаем данные из панели управления. Откройте эту страницу кнопкой «Предпросмотр» в Portfolio CMS.",
     fallback:
-      "Сервис контента недоступен. Показана проверенная версия сайта; если форма недоступна, напишите на почту.",
+      "Вы просматриваете сохранённую версию сайта. Вы можете связаться со мной по почте или через WhatsApp.",
     privacy: "Конфиденциальность",
     terms: "Условия",
     top: "Наверх",
@@ -224,7 +235,22 @@ function Brand({ logoMediaId }: { logoMediaId?: string }) {
     <Logo as="a" />
   );
 }
-function ProjectGraphic() {
+function ProjectGraphic({ platform = false }: { platform?: boolean }) {
+  if (platform)
+    return (
+      <div className="project-graphic platform-graphic" aria-hidden="true">
+        <div className="platform-flow">
+          <div className="platform-clients">
+            <span>Telegram bot</span>
+            <span>Admin panel</span>
+          </div>
+          <div className="platform-connector" />
+          <strong>Shared API</strong>
+          <div className="platform-connector" />
+          <span>PostgreSQL</span>
+        </div>
+      </div>
+    );
   return (
     <div className="project-graphic" aria-hidden="true">
       <div className="graphic-window">
@@ -267,10 +293,11 @@ function Contact({
   locale: "en" | "ru";
 }) {
   const t = words[locale];
-  const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
+  const [state, setState] = useState<
+    "idle" | "sending" | "success" | "error" | "draft"
+  >("idle");
   const [copy, setCopy] = useState("");
+  const [draftUrl, setDraftUrl] = useState("");
   const submission = useRef(crypto.randomUUID());
   const submittedPayload = useRef<string | null>(null);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -286,6 +313,27 @@ function Contact({
       locale,
       ...(data.serviceId ? { serviceId: data.serviceId } : {}),
     };
+    if (payload.website) return;
+    if (payload.name.length < 2 || payload.message.length < 10) {
+      const field = form.elements.namedItem(
+        payload.name.length < 2 ? "name" : "message",
+      ) as HTMLInputElement | HTMLTextAreaElement;
+      field.setCustomValidity(
+        locale === "ru"
+          ? "Добавьте больше информации, не считая пробелов."
+          : "Please add more detail, excluding spaces.",
+      );
+      field.reportValidity();
+      return;
+    }
+    const emailDraft = content.email
+      ? `mailto:${content.email}?subject=${encodeURIComponent("Project inquiry from " + payload.name)}&body=${encodeURIComponent(`Name: ${payload.name}\nEmail: ${payload.email}\n\n${payload.message}`)}`
+      : "";
+    setDraftUrl(emailDraft);
+    if (import.meta.env.VITE_CONTACT_MODE === "email" && emailDraft) {
+      setState("draft");
+      return;
+    }
     const fingerprint = JSON.stringify(payload);
     if (submittedPayload.current !== fingerprint)
       submission.current = crypto.randomUUID();
@@ -319,38 +367,7 @@ function Contact({
       <div className="contact-copy">
         <h2 id="contact-title">{localize(content.title, locale)}</h2>
         <p>{localize(content.description, locale)}</p>
-        <div className="contact-links">
-          {content.email && (
-            <a href={`mailto:${content.email}`}>
-              {content.email}
-              <Arrow diagonal />
-            </a>
-          )}
-          {content.telegramUrl && (
-            <a href={safeUrl(content.telegramUrl)}>
-              Telegram
-              <Arrow diagonal />
-            </a>
-          )}
-          {content.githubProfileUrl && (
-            <a href={safeUrl(content.githubProfileUrl)}>
-              GitHub
-              <Arrow diagonal />
-            </a>
-          )}
-          {content.instagramUrl && (
-            <a href={safeUrl(content.instagramUrl)}>
-              Instagram
-              <Arrow diagonal />
-            </a>
-          )}
-          {content.phone && (
-            <a href={`tel:${content.phone.replace(/[^+\d]/g, "")}`}>
-              {content.phone}
-              <Arrow diagonal />
-            </a>
-          )}
-        </div>
+        <ContactLinks content={content} locale={locale} />
         {content.email && (
           <button
             className="text-button"
@@ -370,7 +387,19 @@ function Contact({
           {copy}
         </p>
       </div>
-      <form className="inquiry-form" onSubmit={submit}>
+      <form
+        className="inquiry-form"
+        onSubmit={submit}
+        aria-busy={state === "sending"}
+        onInput={(event) => {
+          const field = event.target;
+          if (
+            field instanceof HTMLInputElement ||
+            field instanceof HTMLTextAreaElement
+          )
+            field.setCustomValidity("");
+        }}
+      >
         <p className="small-copy">{t.required}</p>
         <label htmlFor="inquiry-name">
           {t.name}
@@ -378,6 +407,7 @@ function Contact({
             id="inquiry-name"
             name="name"
             autoComplete="name"
+            readOnly={state === "sending"}
             required
             minLength={2}
             maxLength={120}
@@ -390,6 +420,7 @@ function Contact({
             name="email"
             type="email"
             autoComplete="email"
+            readOnly={state === "sending"}
             required
             maxLength={254}
           />
@@ -414,6 +445,7 @@ function Contact({
           <textarea
             id="inquiry-message"
             name="message"
+            readOnly={state === "sending"}
             required
             minLength={10}
             maxLength={6000}
@@ -435,7 +467,13 @@ function Contact({
             type="submit"
             disabled={state === "sending"}
           >
-            {state === "sending" ? t.sending : t.send}
+            {state === "sending"
+              ? t.sending
+              : import.meta.env.VITE_CONTACT_MODE === "email"
+                ? locale === "ru"
+                  ? "Подготовить письмо"
+                  : "Prepare email"
+                : t.send}
             <Arrow />
           </button>
         </div>
@@ -446,11 +484,23 @@ function Contact({
           role="status"
           aria-live="polite"
         >
-          {state === "success" ? t.sent : state === "error" ? t.failure : ""}
+          {state === "success"
+            ? t.sent
+            : state === "error"
+              ? t.failure
+              : state === "draft"
+                ? locale === "ru"
+                  ? "Черновик готов. Откройте почтовое приложение и отправьте письмо. Сообщение ещё не отправлено."
+                  : "Your draft is ready. Open your email app to review and send it. No message has been sent yet."
+                : ""}
         </p>
         {content.email && (
-          <a className="text-link" href={`mailto:${content.email}`}>
-            {t.emailFallback}
+          <a className="text-link" href={draftUrl || `mailto:${content.email}`}>
+            {draftUrl
+              ? locale === "ru"
+                ? "Открыть черновик письма"
+                : "Open email draft"
+              : t.emailFallback}
             <Arrow diagonal />
           </a>
         )}
@@ -477,6 +527,14 @@ function ProjectDetail({
       </a>
       <h1>{localize(c.title, locale)}</h1>
       <p className="detail-intro">{localize(c.description, locale)}</p>
+      <p className="project-context">
+        {locale === "ru" ? "Собственный проект" : "Independent project"}
+        {c.liveUrl
+          ? locale === "ru"
+            ? " · Доступна рабочая версия"
+            : " · Live website available"
+          : ""}
+      </p>
       {c.coverMediaId ? (
         <Image
           id={c.coverMediaId}
@@ -484,7 +542,14 @@ function ProjectDetail({
           className="detail-cover"
         />
       ) : (
-        <ProjectGraphic />
+        <ProjectGraphic platform={entry.slug === "atajan-services-platform"} />
+      )}
+      {!c.coverMediaId && (
+        <p className="visual-caption">
+          {locale === "ru"
+            ? "Авторская иллюстрация реализации, не скриншот продукта."
+            : "Original implementation illustration, not a product screenshot."}
+        </p>
       )}
       <div className="detail-layout">
         <aside>
@@ -510,13 +575,23 @@ function ProjectDetail({
           )}
           <div className="detail-links">
             {c.liveUrl && (
-              <a className="text-link" href={safeUrl(c.liveUrl)}>
+              <a
+                className="text-link"
+                href={safeUrl(c.liveUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {t.live}
                 <Arrow diagonal />
               </a>
             )}
             {c.githubUrl && (
-              <a className="text-link" href={safeUrl(c.githubUrl)}>
+              <a
+                className="text-link"
+                href={safeUrl(c.githubUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {t.source}
                 <Arrow diagonal />
               </a>
@@ -561,16 +636,35 @@ function ProjectDetail({
   );
 }
 export default function App() {
-  const [doc, setDoc] = useState<PortfolioDocument>(fallbackDocument);
+  const [doc, setDoc] = useState<PortfolioDocument>(() => {
+    try {
+      const snapshot: unknown = JSON.parse(
+        document.getElementById("portfolio-snapshot")?.textContent || "null",
+      );
+      return validDocument(snapshot) ? snapshot : fallbackDocument;
+    } catch {
+      return fallbackDocument;
+    }
+  });
   const [source, setSource] = useState<
     "loading" | "live" | "fallback" | "preview"
   >("loading");
   const [locale, setLocale] = useState<"en" | "ru">(() =>
     localStorage.getItem("atajan-language") === "ru" ? "ru" : "en",
   );
-  const languageWasChosen=useRef(!!localStorage.getItem('atajan-language'));
+  const languageWasChosen = useRef(!!localStorage.getItem("atajan-language"));
   const [hash, setHash] = useState(location.hash);
   const [menu, setMenu] = useState(false);
+  useEffect(() => {
+    if (!menu) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenu(false);
+      document.querySelector<HTMLButtonElement>(".menu-toggle")?.focus();
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [menu]);
   const [category, setCategory] = useState("all");
   const preview = new URLSearchParams(location.search).has("preview");
   const t = words[locale];
@@ -585,7 +679,14 @@ export default function App() {
         )
           return;
         setPreviewMedia(event.data.media);
-        setLocale(documentLanguage(event.data.document,languageWasChosen.current?localStorage.getItem('atajan-language'):null));
+        setLocale(
+          documentLanguage(
+            event.data.document,
+            languageWasChosen.current
+              ? localStorage.getItem("atajan-language")
+              : null,
+          ),
+        );
         setDoc(event.data.document);
         setSource("preview");
       };
@@ -605,7 +706,14 @@ export default function App() {
       .then((value) => {
         setDoc(value);
         setSource("live");
-        setLocale(documentLanguage(value,languageWasChosen.current?localStorage.getItem('atajan-language'):null));
+        setLocale(
+          documentLanguage(
+            value,
+            languageWasChosen.current
+              ? localStorage.getItem("atajan-language")
+              : null,
+          ),
+        );
       })
       .catch(() => setSource("fallback"));
     return () => {
@@ -633,7 +741,9 @@ export default function App() {
     entries.find((e) => e.kind === kind && (!slug || e.slug === slug))?.content;
   const home = first("HOMEPAGE", "home") || first("HOMEPAGE");
   const design = first("DESIGN");
-  const availableLanguages=design?.availableLanguages?.filter(language=>language==='en'||language==='ru')||['en','ru'];
+  const availableLanguages = design?.availableLanguages?.filter(
+    (language) => language === "en" || language === "ru",
+  ) || ["en", "ru"];
   const seo = first("SEO");
   const routeProjectSlug =
     location.pathname.match(/^\/projects\/([a-z0-9-]+)\/?$/)?.[1] ||
@@ -641,13 +751,35 @@ export default function App() {
   const project = routeProjectSlug
     ? entries.find((e) => e.kind === "PROJECT" && e.slug === routeProjectSlug)
     : undefined;
+  const legalSlug =
+    location.pathname.match(/^\/legal\/([a-z0-9-]+)\/?$/)?.[1] ||
+    (hash.startsWith("#/legal/") ? hash.slice(8) : null);
+  const legal = legalSlug
+    ? entries.find((e) => e.kind === "LEGAL" && e.slug === legalSlug)
+    : undefined;
   useEffect(() => {
-    const data = project?.content;
+    const data: PortfolioContent | undefined =
+      project?.content ||
+      legal?.content ||
+      (legalSlug
+        ? {
+            title: {
+              en: legalSlug === "privacy" ? words.en.privacy : words.en.terms,
+              ru: legalSlug === "privacy" ? words.ru.privacy : words.ru.terms,
+            },
+            description: {
+              en:
+                legalSlug === "privacy"
+                  ? "How Atajan Labs uses your project inquiry information."
+                  : "Projects begin after scope, pricing and delivery terms are agreed separately.",
+            },
+          }
+        : undefined);
     document.documentElement.setAttribute("lang", locale);
     const canonical = project
       ? "https://atajan.org/projects/" + project.slug + "/"
-      : location.pathname.startsWith("/legal/")
-        ? "https://atajan.org" + location.pathname
+      : legalSlug
+        ? `https://atajan.org/legal/${legalSlug}/`
         : "https://atajan.org/";
     document
       .querySelector('link[rel="canonical"]')
@@ -686,10 +818,21 @@ export default function App() {
       .querySelector('meta[property="og:image"]')
       ?.setAttribute(
         "content",
-        seo?.ogMediaId || design?.ogMediaId
-          ? mediaUrl((seo?.ogMediaId || design?.ogMediaId)!)
+        data?.ogMediaId || seo?.ogMediaId || design?.ogMediaId
+          ? mediaUrl((data?.ogMediaId || seo?.ogMediaId || design?.ogMediaId)!)
           : "https://atajan.org/social-card.png",
       );
+    for (const [name, value] of Object.entries({
+      "twitter:title": document.title,
+      "twitter:description": description,
+      "twitter:image":
+        document
+          .querySelector('meta[property="og:image"]')
+          ?.getAttribute("content") || "https://atajan.org/social-card.png",
+    }))
+      document
+        .querySelector(`meta[name="${name}"]`)
+        ?.setAttribute("content", value);
     document
       .querySelector('link[rel="icon"]')
       ?.setAttribute(
@@ -720,7 +863,7 @@ export default function App() {
             ? "Inter, sans-serif"
             : "system-ui, sans-serif",
       );
-  }, [locale, seo, design, project]);
+  }, [locale, seo, design, project, legal, legalSlug]);
   const hero = first("HERO"),
     services = entries.filter((e) => e.kind === "SERVICE"),
     projects = entries.filter((e) => e.kind === "PROJECT"),
@@ -758,10 +901,6 @@ export default function App() {
   const technologyIntro = first("HOMEPAGE", "technologies");
   const footerContent = first("HOMEPAGE", "footer");
   const headerContent = first("HOMEPAGE", "header");
-  const hasSocial = (url: string) =>
-    entries.some(
-      (entry) => entry.kind === "SOCIAL_LINK" && entry.content.url === url,
-    );
   const defaultNavigation = [
     ["services", t.services],
     ["projects", t.projects],
@@ -789,6 +928,11 @@ export default function App() {
       >
         <div className="hero-copy">
           <h1 id="hero-title">{localize(hero.title, locale)}</h1>
+          <p className="hero-introduction">
+            {locale === "ru"
+              ? "Я Атаджан, независимый full-stack разработчик."
+              : "I’m Atajan, an independent full-stack developer."}
+          </p>
           <p>{localize(hero.description, locale)}</p>
           <div className="hero-actions">
             <a
@@ -920,7 +1064,9 @@ export default function App() {
                       alt={localize(p.content.title, locale)}
                     />
                   ) : (
-                    <ProjectGraphic />
+                    <ProjectGraphic
+                      platform={p.slug === "atajan-services-platform"}
+                    />
                   )}
                   <span className="project-open">
                     <Arrow diagonal />
@@ -1060,17 +1206,20 @@ export default function App() {
     location.pathname !== import.meta.env.BASE_URL &&
     location.pathname !== "/index.html" &&
     !/^\/(projects|legal)\/[a-z0-9-]+\/?$/.test(location.pathname);
-  const legalSlug =
-    location.pathname.match(/^\/legal\/([a-z0-9-]+)\/?$/)?.[1] ||
-    (hash.startsWith("#/legal/") ? hash.slice(8) : null);
-  const legal = legalSlug
-    ? entries.find((e) => e.kind === "LEGAL" && e.slug === legalSlug)
-    : undefined;
   const unknown =
     (!!routeProjectSlug && !project) ||
     (!!legalSlug && !legal && !["privacy", "terms"].includes(legalSlug)) ||
     (hash.startsWith("#/") && !project && !legalSlug) ||
     missingPath;
+  useEffect(() => {
+    document
+      .querySelector('meta[name="robots"]')
+      ?.setAttribute(
+        "content",
+        unknown || preview ? "noindex, nofollow" : "index, follow",
+      );
+    if (unknown) document.title = `${words[locale].notFound} | Atajan Labs`;
+  }, [unknown, preview, locale]);
   return (
     <>
       <a className="skip-link" href="#main">
@@ -1115,9 +1264,18 @@ export default function App() {
             <select
               aria-label={locale === "ru" ? "Язык" : "Language"}
               value={locale}
-              onChange={(e) => {languageWasChosen.current=true;setLocale(e.target.value === "ru" ? "ru" : "en");}}
+              onChange={(e) => {
+                languageWasChosen.current = true;
+                setLocale(e.target.value === "ru" ? "ru" : "en");
+              }}
             >
-              {(availableLanguages.length?availableLanguages:['en']).map(language=><option key={language} value={language}>{language.toUpperCase()}</option>)}
+              {(availableLanguages.length ? availableLanguages : ["en"]).map(
+                (language) => (
+                  <option key={language} value={language}>
+                    {language.toUpperCase()}
+                  </option>
+                ),
+              )}
             </select>
           </label>
           <a
@@ -1166,16 +1324,16 @@ export default function App() {
             <p>
               {locale === "en"
                 ? legalSlug === "privacy"
-                  ? "The inquiry form collects your name, email and project message so Atajan Labs can respond. Submissions are stored in the private administration system. Please do not include passwords, payment details or other secrets. Contact us by email to request access, correction or deletion."
+                  ? "The inquiry form collects your name, email and project message so Atajan Labs can respond. Confirmed API submissions are stored in the private administration system. Email drafts are sent only through your own mail app. Please do not include passwords, payment details or other secrets. Contact us by email to request access, correction or deletion."
                   : "This website presents development services and project evidence. A project begins only after scope, pricing, delivery and support terms have been agreed separately. This website does not accept payments. No agreement or payment is created by submitting an inquiry."
                 : legalSlug === "privacy"
-                  ? "Форма собирает имя, электронную почту и описание проекта для ответа Atajan Labs. Заявки хранятся в закрытой панели управления. Не указывайте пароли, платёжные реквизиты и другие секреты. Для доступа, исправления или удаления данных напишите нам на почту."
+                  ? "Форма собирает имя, электронную почту и описание проекта для ответа Atajan Labs. Подтверждённые сервером заявки хранятся в закрытой панели управления. Черновики писем отправляются только через ваше почтовое приложение. Не указывайте пароли, платёжные реквизиты и другие секреты. Для доступа, исправления или удаления данных напишите нам на почту."
                   : "Сайт представляет услуги разработки и реальные проекты. Работа начинается после отдельного согласования объёма, стоимости, передачи и поддержки. Сайт не принимает платежи. Отправка заявки не создаёт договор или платёж."}
             </p>
           )}
           {contact?.email && (
             <a className="text-link" href={`mailto:${contact.email}`}>
-              {contact.email}
+              {locale === "ru" ? "Написать на почту" : "Send an email"}
               <Arrow diagonal />
             </a>
           )}
@@ -1270,31 +1428,17 @@ export default function App() {
               </details>
             )}
           </nav>
-          <div>
-            {entries
-              .filter((e) => e.kind === "SOCIAL_LINK")
-              .map((e) => (
-                <a key={e.id} href={safeUrl(e.content.url)}>
-                  {localize(e.content.title, locale)}
-                  <Arrow diagonal />
-                </a>
-              ))}
-            {contact?.email && !hasSocial(`mailto:${contact.email}`) && (
-              <a href={`mailto:${contact.email}`}>{contact.email}</a>
-            )}
-            {contact?.telegramUrl && !hasSocial(contact.telegramUrl) && (
-              <a href={safeUrl(contact.telegramUrl)}>
-                Telegram
-                <Arrow diagonal />
-              </a>
-            )}
-            {contact?.githubProfileUrl &&
-              !hasSocial(contact.githubProfileUrl) && (
-                <a href={safeUrl(contact.githubProfileUrl)}>
-                  GitHub
-                  <Arrow diagonal />
-                </a>
-              )}
+          <div className="footer-contact">
+            <p>
+              {locale === "ru"
+                ? "Обсудим ваш проект"
+                : "Let’s talk about your project"}
+            </p>
+            <ContactLinks
+              content={contact}
+              social={entries.filter((e) => e.kind === "SOCIAL_LINK")}
+              locale={locale}
+            />
           </div>
         </div>
         <div className="footer-bottom">

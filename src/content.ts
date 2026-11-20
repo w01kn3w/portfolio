@@ -3,8 +3,8 @@ export const profile = {
   email: "wolkannaberdiyew@gmail.com",
   instagram: "https://www.instagram.com/annaberdi_yev/",
   instagramHandle: "annaberdi_yev",
-  phone: "+8613521004012",
-  github: "https://github.com/annlegion",
+  whatsapp: "https://wa.me/8613521004012",
+  github: "https://github.com/w01kn3w",
   source: "https://github.com/w01kn3w/portfolio",
 };
 

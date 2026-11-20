@@ -1,12 +1,6 @@
 ﻿import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import {
-  copyFileSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-} from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { brotliCompressSync, gzipSync, constants } from "node:zlib";
 import { fallbackDocument } from "./src/portfolio-data";
@@ -40,12 +34,20 @@ function generateStaticPages() {
       throw new Error("Invalid published build content");
     document = value;
   }
-  const template = readFileSync("dist/index.html", "utf8");
+  // Carry the published snapshot into the first render and offline fallback.
+  // Legacy CMS phone fields are deliberately excluded from generated HTML.
+  const snapshot = JSON.stringify(document, (key, value: unknown) =>
+    key === "phone" ? undefined : value,
+  ).replace(/</g, "\\u003c");
+  let template = readFileSync("dist/index.html", "utf8").replace(
+    '<div id="root"></div>',
+    `<div id="root"></div><script id="portfolio-snapshot" type="application/json">${snapshot}</script>`,
+  );
   const api = (
     process.env.VITE_PORTFOLIO_API_URL || "https://labs.atajan.org/api/v1"
   ).replace(/\/$/, "");
   const urls = ["https://atajan.org/"];
-  function page(path: string, content: PortfolioContent) {
+  function page(path: string, content: PortfolioContent, home = false) {
     const canonical = `https://atajan.org${path}`;
     const title = content.seoTitle?.en || content.title.en;
     const description =
@@ -78,15 +80,53 @@ function generateStaticPages() {
         new RegExp(`<meta\\s+property="${property}"[^>]*>`),
         meta(property, value),
       );
+    for (const [name, value] of Object.entries({
+      "twitter:title": title,
+      "twitter:description": description,
+      "twitter:image": image,
+    }))
+      html = html.replace(
+        new RegExp(`<meta\\s+name="${name}"[^>]*>`),
+        `<meta name="${name}" content="${escapeHtml(value)}" />`,
+      );
     html = html.replace(
       /<noscript\b[^>]*>[\s\S]*?<\/noscript\s*>/,
-      `<noscript><main><h1>${escapeHtml(content.title.en)}</h1><p>${escapeHtml(description)}</p><p>${escapeHtml(content.body?.en || "")}</p>${content.challenge ? `<h2>The challenge</h2><p>${escapeHtml(content.challenge.en)}</p>` : ""}${content.solution ? `<h2>The solution</h2><p>${escapeHtml(content.solution.en)}</p>` : ""}<a href="/">Atajan Labs</a></main></noscript>`,
+      `<noscript><main><h1>${escapeHtml(content.title.en)}</h1><p>${escapeHtml(description)}</p><p>${escapeHtml(content.body?.en || "")}</p>${content.challenge ? `<h2>The challenge</h2><p>${escapeHtml(content.challenge.en)}</p>` : ""}${content.solution ? `<h2>The solution</h2><p>${escapeHtml(content.solution.en)}</p>` : ""}${
+        home
+          ? document.entries
+              .filter(
+                (e) =>
+                  e.content.active !== false &&
+                  ["SERVICE", "PROJECT", "ABOUT"].includes(e.kind),
+              )
+              .map(
+                (e) =>
+                  `<section><h2>${escapeHtml(e.content.title.en)}</h2><p>${escapeHtml(e.content.description?.en || "")}</p>${e.kind === "PROJECT" ? `<a href="/projects/${escapeHtml(e.slug)}/">Explore project</a>` : ""}</section>`,
+              )
+              .join("") +
+            '<a href="mailto:wolkannaberdiyew@gmail.com">Send an email</a>'
+          : ""
+      }<a href="/">Atajan Labs</a></main></noscript>`,
     );
     const directory = join("dist", path);
     mkdirSync(directory, { recursive: true });
     writeFileSync(join(directory, "index.html"), html);
-    urls.push(canonical);
+    if (home) template = html;
+    else urls.push(canonical);
   }
+  const seo = document.entries.find(
+    (e) => e.kind === "SEO" && e.content.active !== false,
+  )?.content;
+  page(
+    "/",
+    seo || {
+      title: { en: "Atajan Labs | Web development, backend & automation" },
+      description: {
+        en: "Websites, backend systems and automation by Atajan, an independent full-stack developer.",
+      },
+    },
+    true,
+  );
   for (const entry of document.entries.filter(
     (entry) =>
       entry.content.active !== false &&
@@ -115,6 +155,12 @@ function generateStaticPages() {
             slug === "privacy"
               ? "How Atajan Labs uses your project inquiry information."
               : "Projects begin after scope, pricing and delivery terms are agreed separately.",
+        },
+        body: {
+          en:
+            slug === "privacy"
+              ? "The inquiry form collects your name, email and project message so Atajan Labs can respond. Confirmed API submissions are stored in the private administration system. Email drafts are sent only through your own mail app. Please do not include passwords, payment details or other secrets. Contact us by email to request access, correction or deletion."
+              : "This website presents development services and project evidence. A project begins only after scope, pricing, delivery and support terms have been agreed separately. This website does not accept payments. No agreement or payment is created by submitting an inquiry.",
         },
       });
   writeFileSync(
@@ -156,7 +202,13 @@ export default defineConfig({
       name: "static-not-found-page",
       closeBundle() {
         generateStaticPages();
-        copyFileSync("dist/index.html", "dist/404.html");
+        writeFileSync(
+          "dist/404.html",
+          readFileSync("dist/index.html", "utf8").replace(
+            'name="robots" content="index, follow"',
+            'name="robots" content="noindex, nofollow"',
+          ),
+        );
         compressDirectory("dist");
       },
     },

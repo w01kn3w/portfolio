@@ -302,7 +302,6 @@ export const fallbackDocument: PortfolioDocument = {
       telegramUrl: "https://t.me/atajanlabs_bot",
       githubProfileUrl: "https://github.com/w01kn3w",
       instagramUrl: "https://www.instagram.com/annaberdi_yev/",
-      phone: "+8613521004012",
     }),
     entry("HOMEPAGE", "final-cta", {
       title: l("Have an idea? Let's build it.", "Есть идея? Давайте воплотим."),

@@ -550,6 +550,47 @@ h3 {
   overflow: hidden;
   transform: perspective(1000px) rotateX(5deg);
 }
+.platform-graphic {
+  background: #edf2f5;
+  padding: 32px;
+}
+.platform-flow {
+  width: min(100%, 380px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  font-size: clamp(11px, 1.3vw, 16px);
+}
+.platform-clients {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  justify-content: center;
+}
+.platform-flow span,
+.platform-flow strong {
+  padding: 12px 18px;
+  border: 1px solid #a9b9cb;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+.platform-flow strong {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+  min-width: 60%;
+}
+.platform-connector {
+  height: 22px;
+  width: 1px;
+  background: #a9b9cb;
+}
+.visual-caption {
+  font-size: 12px;
+  margin-top: 12px;
+}
 .graphic-toolbar {
   height: 25px;
   display: flex;
@@ -767,23 +808,52 @@ h3 {
 }
 .contact-links {
   display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   margin: 28px 0 12px;
 }
 .contact-links a {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  font-size: 12px;
-  min-height: 24px;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--bg);
+  transition: background 180ms var(--ease), color 180ms var(--ease), border-color 180ms var(--ease);
 }
-.contact-links .arrow {
-  width: 16px;
-  height: 16px;
+.contact-links a:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
   color: var(--accent);
+  text-decoration: none;
+}
+.contact-links svg {
+  width: 21px;
+  height: 21px;
+}
+.footer-contact .contact-links {
+  margin-block: 8px 0;
+  gap: 10px;
+}
+.footer-contact .contact-links a {
+  width: 44px;
+  height: 44px;
+}
+.hero-copy > .hero-introduction {
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.hero-copy > .hero-introduction + p {
+  margin-top: 12px;
+}
+.project-context {
+  font-size: 13px;
+  margin-block: 18px 28px;
 }
 .inquiry-form {
   display: flex;
@@ -806,14 +876,16 @@ h3 {
   border: 1px solid #d8e0eb;
   padding: 13px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--ink);
   resize: vertical;
 }
 .inquiry-form input:focus,
-.inquiry-form textarea:focus {
+.inquiry-form textarea:focus,
+.inquiry-form select:focus {
   background: #fff;
-  outline: 2px solid #175ad626;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
   border-color: var(--accent);
 }
 .form-bottom {

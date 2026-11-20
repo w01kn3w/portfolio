@@ -1,6 +1,6 @@
 # Deployment
 
-The selected GitHub Pages workflow publishes the static site from `main` at the custom domain `atajan.org`, with root base `/`. It runs lint, frontend and backend type checks, backend tests and a production build before publishing. Pages cannot run the contact API; its `VITE_CONTACT_MODE=email` form creates a draft in the visitor's mail app. See [GitHub Pages domain setup](github-pages.md). The VPS instructions below are an optional alternative, not required for the selected hosting.
+The selected GitHub Pages workflow publishes the static site from `main` at the custom domain `atajan.org`, with root base `/`. It runs lint, frontend and backend type checks, backend tests and a production build before publishing. Pages serves the frontend; the production form uses the separate existing CMS inquiry API. `VITE_CONTACT_MODE=email` prepares a draft in the visitor's mail app. API errors also offer a populated email draft. See [GitHub Pages domain setup](github-pages.md). The VPS instructions below are an optional alternative, not required for the selected hosting.
 
 The dedicated VPS workflow is disabled by default. It runs only when repository variable `VPS_DEPLOY_ENABLED` is `true`, on `main`, with the protected `production` environment. No server, DNS or certificate configuration has been applied by these files. `atajan.org` was observed pointing to `159.65.0.116`; `www.atajan.org` had no address. These observations do not establish server ownership or application readiness.
 

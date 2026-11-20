@@ -21,7 +21,7 @@ The existing optional Node SMTP endpoint remains available for legacy integratio
 
 The existing administration at labs.atajan.org manages portfolio content. Public content includes only published snapshots. No extra administrator login or database is introduced. Exact retries preserve the same inquiry identifier; changing a failed inquiry creates a fresh identifier. Draft preview accepts only the configured administration origin and opener, with bounded image Blobs and no session token transport.
 
-A failed CMS read uses the explicit verified bundled snapshot from src/portfolio-data.ts. A successful empty publication is not merged with that snapshot. The portfolio case study is backed by this repository. No clients, testimonials, revenue or performance outcomes are invented. The current owner GitHub is w01kn3w; existing valid email, Instagram and phone contacts are preserved.
+A failed CMS read uses the build's published snapshot, or the verified bundled snapshot when no published export was supplied. A successful empty publication is not merged with that snapshot. The portfolio case study is backed by this repository. No clients, testimonials, revenue or performance outcomes are invented. The current owner GitHub is w01kn3w; existing email, Instagram, GitHub and Telegram destinations are preserved. WhatsApp replaces visible phone text.
 
 All sections, project details, navigation, contacts, services, technologies, legal content and global design values use CMS fields. Section headings and footer copy use HOMEPAGE entries; see the [integration contract](docs/portfolio-integration.md). The original Orbit animation, pause/reduced-motion behavior, geometric Architecture exploration and optional SMTP service remain. The old cursor source is retained for rollback but no longer mounted.
 
@@ -31,7 +31,7 @@ npm run check runs ESLint, both TypeScript projects, seven Node tests and a prod
 
 ## Hosting and rollback
 
-The selected portfolio host remains GitHub Pages at atajan.org. Only reviewed main pushes or an explicit main workflow dispatch can deploy. This feature branch has not been deployed. No DNS changes are required. The existing Railway backend must be upgraded separately after owner approval, with its documented backup and migration procedure.
+The selected portfolio host remains GitHub Pages at atajan.org. Only reviewed main pushes or an explicit main workflow dispatch can deploy. See docs/production-polish.md for the current release and verification scope. No DNS changes are required. The existing Railway backend must be upgraded separately after owner approval, with its documented backup and migration procedure.
 
 Vite emits static project/legal pages with canonical URLs, metadata, noscript content and a generated sitemap. By default these use the verified bundled snapshot. To refresh crawler metadata after publishing CMS edits, export the public document to an ignored local file and set PORTFOLIO_BUILD_CONTENT_FILE for the build. Runtime UI content updates through the public API; social previews need a new Pages build. The default CI build is deterministic and makes no privileged API requests.
 

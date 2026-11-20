@@ -108,13 +108,11 @@ try {
     ...window.__portfolioVitals,
     domContentLoaded:
       performance.getEntriesByType("navigation")[0]?.domContentLoadedEventEnd,
-    resources: performance
-      .getEntriesByType("resource")
-      .map((entry) => ({
-        name: entry.name,
-        transferSize: entry.transferSize,
-        duration: Math.round(entry.duration),
-      })),
+    resources: performance.getEntriesByType("resource").map((entry) => ({
+      name: entry.name,
+      transferSize: entry.transferSize,
+      duration: Math.round(entry.duration),
+    })),
   }));
   assert.match(await page.title(), /Atajan Labs/);
   assert.equal(await page.locator("h1").count(), 1);
@@ -130,18 +128,38 @@ try {
   assert.equal(await page.locator(".primary-nav a").count(), 4);
   assert.equal(
     await page
-      .locator('.contact-links a[href="mailto:wolkannaberdiyew@gmail.com"]')
+      .locator(
+        '.contact-copy .contact-links a[href="mailto:wolkannaberdiyew@gmail.com"]',
+      )
       .count(),
     1,
   );
   assert.equal(
     await page
-      .locator('.contact-links a[href="https://github.com/w01kn3w"]')
+      .locator(
+        '.contact-copy .contact-links a[href="https://github.com/w01kn3w"]',
+      )
       .count(),
     1,
   );
   results.push(
     "Published document renders all portfolio sections and verified contacts",
+  );
+  assert.equal(await page.locator('a[href^="tel:"]').count(), 0);
+  assert.doesNotMatch(await page.locator("body").innerText(), /8613521004012/);
+  const whatsapp = page.locator('.contact-copy a[href^="https://wa.me/"]');
+  assert.equal(
+    new URL(await whatsapp.getAttribute("href")).pathname,
+    "/8613521004012",
+  );
+  assert.equal(
+    await whatsapp.getAttribute("aria-label"),
+    "Contact me on WhatsApp",
+  );
+  assert.equal(await whatsapp.getAttribute("rel"), "noopener noreferrer");
+  assert.equal(await page.locator(".contact-links svg").count(), 10);
+  results.push(
+    "Icon contacts, exact WhatsApp destination and no visible phone number",
   );
   await page.locator(".language-control select").selectOption("ru");
   assert.equal(await page.locator("html").getAttribute("lang"), "ru");
@@ -158,7 +176,7 @@ try {
   results.push("English/Russian language selection persists across reload");
   await page.locator(".project-filters button").last().click();
   assert.equal(await page.locator(".project").count(), 1);
-  await page.locator(".project-cover").click();
+  await page.locator('.project-cover[href="/projects/atajan-portfolio/"]').click();
   assert.match(page.url(), /\/projects\/atajan-portfolio\//);
   assert.match(await page.locator("main h1").innerText(), /Atajan portfolio/);
   assert.equal(
@@ -167,13 +185,17 @@ try {
       .count(),
     1,
   );
-  assert.equal(await page.locator('.footer-bottom a').last().getAttribute('href'),'/#top');
-  await page.locator('.footer-bottom a').first().click();
-  assert.match(page.url(),/\/legal\/privacy\//);
-  assert.match(await page.locator('main h1').innerText(),/Privacy/);
-  await page.locator('main>a').first().click();
-  assert.equal(new URL(page.url()).pathname,'/');
-  await page.locator('.project-cover').click();
+  assert.equal(
+    await page.locator(".footer-bottom a").last().getAttribute("href"),
+    "/#top",
+  );
+  await page.locator(".footer-bottom a").first().click();
+  assert.match(page.url(), /\/legal\/privacy\//);
+  assert.match(await page.locator("main h1").innerText(), /Privacy/);
+  assert.equal(await page.title(), "Privacy");
+  await page.locator("main>a").first().click();
+  assert.equal(new URL(page.url()).pathname, "/");
+  await page.locator('.project-cover[href="/projects/atajan-portfolio/"]').click();
   await page.locator("main>a").first().click();
   await page.locator("#projects").waitFor();
   results.push("Project category filtering, detail route and source evidence");
@@ -186,6 +208,13 @@ try {
   await page
     .getByText("The server did not confirm your inquiry.", { exact: false })
     .waitFor();
+  const draft = new URL(
+    await page
+      .getByRole("link", { name: "Open email draft" })
+      .getAttribute("href"),
+  );
+  assert.match(draft.searchParams.get("body"), /verification-only inquiry/);
+  assert.match(draft.searchParams.get("body"), /browser@example.test/);
   inquiryStatus = 201;
   await page.locator(".inquiry-form button[type=submit]").click();
   await page
@@ -244,7 +273,7 @@ try {
     path: ".impeccable/review/desktop-upgrade.png",
     fullPage: true,
   });
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(
       await page.evaluate(
@@ -256,6 +285,18 @@ try {
     if (width < 560) {
       await page.locator(".menu-toggle").click();
       assert.equal(await page.locator(".primary-nav").isVisible(), true);
+      await page.keyboard.press("Escape");
+      assert.equal(
+        await page.locator(".menu-toggle").getAttribute("aria-expanded"),
+        "false",
+      );
+      assert.equal(
+        await page
+          .locator(".menu-toggle")
+          .evaluate((element) => element === document.activeElement),
+        true,
+      );
+      await page.locator(".menu-toggle").click();
       await page.locator(".primary-nav a").first().click();
       assert.equal(await page.locator(".primary-nav").isVisible(), false);
     }
@@ -273,7 +314,9 @@ try {
         fullPage: true,
       });
   }
-  results.push("320/390/768/1440 responsive layout and mobile navigation");
+  results.push(
+    "320/375/390/430/768/1024/1280/1440/1920 responsive layout and mobile navigation",
+  );
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload({ waitUntil: "networkidle" });
@@ -309,6 +352,10 @@ try {
     waitUntil: "networkidle",
   });
   assert.match(await page.locator("main h1").innerText(), /could not be found/);
+  assert.equal(
+    await page.locator('meta[name="robots"]').getAttribute("content"),
+    "noindex, nofollow",
+  );
   await page.goto(`${options.origin}/#/projects/%`, {
     waitUntil: "networkidle",
   });
@@ -323,6 +370,13 @@ try {
     /https:\/\/atajan.org\/projects\/atajan-portfolio\//,
   );
   assert.match(staticProject, /<noscript><main><h1>Atajan portfolio<\/h1>/);
+  assert.match(
+    staticProject,
+    /name="twitter:title" content="Atajan portfolio"/,
+  );
+  const homeHtml = await readFile("dist/index.html", "utf8");
+  assert.match(homeHtml, /id="portfolio-snapshot"/);
+  assert.doesNotMatch(homeHtml, /8613521004012|"phone"\s*:/);
   assert.match(
     await readFile("dist/sitemap.xml", "utf8"),
     /\/projects\/atajan-portfolio\//,
@@ -442,15 +496,29 @@ try {
   results.push(
     "Preview accepts only exact trusted opener origin and requires no credential transport",
   );
-  publication.entries.push({id:'design-test',kind:'DESIGN',slug:'design',sortOrder:0,content:{title:{en:'Design'},defaultLanguage:'ru',availableLanguages:['ru','en']}});
-  await page.evaluate(()=>localStorage.removeItem('atajan-language'));
-  await page.goto(options.origin,{waitUntil:'networkidle'});
-  assert.equal(await page.locator('html').getAttribute('lang'),'ru');
-  publication.entries.find(entry=>entry.kind==='DESIGN').content.availableLanguages=['en'];
-  await page.reload({waitUntil:'networkidle'});
-  assert.equal(await page.locator('html').getAttribute('lang'),'en');
-  assert.equal(await page.locator('.language-control option').count(),1);
-  results.push('CMS default language applies on first visit and available languages are enforced');
+  publication.entries.push({
+    id: "design-test",
+    kind: "DESIGN",
+    slug: "design",
+    sortOrder: 0,
+    content: {
+      title: { en: "Design" },
+      defaultLanguage: "ru",
+      availableLanguages: ["ru", "en"],
+    },
+  });
+  await page.evaluate(() => localStorage.removeItem("atajan-language"));
+  await page.goto(options.origin, { waitUntil: "networkidle" });
+  assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+  publication.entries.find(
+    (entry) => entry.kind === "DESIGN",
+  ).content.availableLanguages = ["en"];
+  await page.reload({ waitUntil: "networkidle" });
+  assert.equal(await page.locator("html").getAttribute("lang"), "en");
+  assert.equal(await page.locator(".language-control option").count(), 1);
+  results.push(
+    "CMS default language applies on first visit and available languages are enforced",
+  );
   assert.equal(errors.length, 0, errors.join("\n"));
   const metrics = await page.evaluate(() => ({
     resources: performance.getEntriesByType("resource").map((r) => ({
